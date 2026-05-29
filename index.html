@@ -1,0 +1,3889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0e1a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="AQUILES Patrón" />
+<title>AQUILES Patrón — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --ink: #0a0e1a;
+  --ink-soft: #1a1f2e;
+  --paper: #f4f1ea;
+  --paper-warm: #ebe6db;
+  --accent: #c8a951;
+  --accent-deep: #8a7333;
+  --danger: #c0392b;
+  --warn: #d68910;
+  --safe: #1e7d4f;
+  --line: rgba(10, 14, 26, 0.12);
+  --shadow-lg: 0 30px 80px -20px rgba(10, 14, 26, 0.35);
+  --shadow-md: 0 8px 24px -8px rgba(10, 14, 26, 0.25);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  min-height: 100%;
+  background: var(--ink);
+  font-family: 'Inter Tight', sans-serif;
+  color: var(--paper);
+  overflow-x: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top left, rgba(200, 169, 81, 0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(192, 57, 43, 0.06), transparent 50%),
+    var(--ink);
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ NAVEGACIÓN RAÍZ (pantallas de nivel app) ============ */
+.app-screen { display: none; }
+.app-screen.active { display: block; }
+
+/* ============ PANTALLA: SELECCIÓN DE ROL ============ */
+#screen-home {
+  min-height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+#screen-home.active { display: flex; }
+
+.home-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.home-brand .mark {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+.home-brand .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(244, 241, 234, 0.4);
+  text-transform: uppercase;
+}
+.home-brand .div {
+  height: 1px; width: 60px;
+  background: linear-gradient(to right, var(--accent), transparent);
+}
+
+#screen-home h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin-bottom: 12px;
+  max-width: 720px;
+}
+#screen-home h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+#screen-home .home-sub {
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(244, 241, 234, 0.6);
+  text-align: center;
+  max-width: 520px;
+  margin-bottom: 48px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 720px;
+  width: 100%;
+}
+@media (max-width: 640px) { .role-grid { grid-template-columns: 1fr; } }
+
+.role-card {
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  background: rgba(244, 241, 234, 0.02);
+  backdrop-filter: blur(8px);
+  padding: 32px 28px;
+  cursor: pointer;
+  transition: all 0.25s;
+  border-radius: 4px;
+  text-align: left;
+}
+.role-card:hover {
+  border-color: var(--accent);
+  background: rgba(200, 169, 81, 0.05);
+  transform: translateY(-3px);
+}
+.role-card .role-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 40px;
+  color: var(--accent-deep);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.role-card .role-name {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.role-card .role-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 241, 234, 0.6);
+  margin-bottom: 16px;
+}
+.role-card .role-device {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.home-footer {
+  margin-top: 48px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(244, 241, 234, 0.3);
+  text-transform: uppercase;
+}
+
+/* ============ ENCABEZADO (vista supervisor original) ============ */
+#screen-supervisor {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 80px;
+  position: relative;
+  z-index: 1;
+}
+#screen-supervisor.active { display: flex; }
+
+.nav-back-root {
+  position: fixed;
+  top: 20px; left: 20px;
+  z-index: 300;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(244, 241, 234, 0.06);
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--paper);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+}
+.nav-back-root:hover { border-color: var(--accent); color: var(--accent); }
+
+.hero {
+  max-width: 1200px;
+  width: 100%;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.brand-mark {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+.brand-divider {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(to right, var(--accent), transparent);
+}
+
+.brand-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(244, 241, 234, 0.4);
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.hero p {
+  max-width: 640px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(244, 241, 234, 0.7);
+}
+
+/* ============ DEMO STAGE ============ */
+.stage {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr 380px 1fr;
+  gap: 40px;
+  align-items: start;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 980px) {
+  .stage {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .side-left, .side-right { order: 2; }
+  .phone-wrap { order: 1; justify-self: center; }
+}
+
+.side-panel {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-color: rgba(244, 241, 234, 0.1);
+  background: rgba(244, 241, 234, 0.02);
+  backdrop-filter: blur(8px);
+}
+
+.side-panel h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(200, 169, 81, 0.2);
+}
+
+.side-panel ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-panel li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(244, 241, 234, 0.7);
+  padding-left: 18px;
+  position: relative;
+}
+
+.side-panel li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--accent);
+  transform: rotate(45deg);
+}
+
+.side-panel strong {
+  color: var(--paper);
+  font-weight: 600;
+}
+
+/* ============ TELÉFONO ============ */
+.phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.phone-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(244, 241, 234, 0.4);
+  text-transform: uppercase;
+}
+
+.phone {
+  width: 380px;
+  height: 780px;
+  background: #000;
+  border-radius: 48px;
+  padding: 12px;
+  box-shadow: var(--shadow-lg), inset 0 0 0 2px rgba(255,255,255,0.05);
+  position: relative;
+}
+
+.phone::after {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 28px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+.screen {
+  width: 100%;
+  height: 100%;
+  background: var(--paper);
+  border-radius: 38px;
+  overflow: hidden;
+  position: relative;
+  color: var(--ink);
+  font-family: 'Inter Tight', sans-serif;
+}
+
+/* ============ PANTALLAS ============ */
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  background: var(--paper);
+}
+
+.view.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Status bar y header común */
+.status-bar {
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 32px 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.app-header {
+  padding: 16px 24px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.app-header .back {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.app-header .back:hover { transform: scale(1.08); }
+
+.app-header .title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.app-header .subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(10, 14, 26, 0.5);
+  margin-top: 2px;
+}
+
+/* ============ VISTA 1: DASHBOARD ============ */
+.dashboard-greeting {
+  padding: 24px 24px 16px;
+}
+
+.dashboard-greeting .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 6px;
+}
+
+.dashboard-greeting h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.dashboard-greeting h2 em {
+  font-style: italic;
+  color: var(--accent-deep);
+}
+
+.dashboard-greeting .meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(10, 14, 26, 0.55);
+}
+
+.section-title {
+  padding: 8px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10, 14, 26, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title .count {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 8px;
+  font-size: 9px;
+  border-radius: 10px;
+}
+
+.employee-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 16px 100px;
+}
+
+.employee-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.employee-card:hover { background: rgba(10, 14, 26, 0.04); }
+
+.employee-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--paper-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.risk-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+}
+
+.risk-dot.safe { background: var(--safe); }
+.risk-dot.warn { background: var(--warn); }
+.risk-dot.danger { background: var(--danger); }
+
+.employee-info { flex: 1; min-width: 0; }
+.employee-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.employee-role {
+  font-size: 11px;
+  color: rgba(10, 14, 26, 0.55);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.risk-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.risk-tag.safe { background: rgba(30, 125, 79, 0.12); color: var(--safe); }
+.risk-tag.warn { background: rgba(214, 137, 16, 0.14); color: var(--warn); }
+.risk-tag.danger { background: rgba(192, 57, 43, 0.12); color: var(--danger); }
+
+/* FAB - Botón flotante */
+.fab {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 16px 32px;
+  border-radius: 100px;
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 30px -8px rgba(10, 14, 26, 0.5);
+  transition: transform 0.2s;
+  border: none;
+  z-index: 50;
+}
+
+.fab:hover { transform: translateX(-50%) translateY(-2px); }
+
+.fab-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  color: var(--ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+/* ============ VISTA 2: SELECCIONAR EMPLEADO ============ */
+.step-indicator {
+  padding: 12px 24px 4px;
+  display: flex;
+  gap: 6px;
+}
+
+.step-dot {
+  flex: 1;
+  height: 3px;
+  background: var(--paper-warm);
+  border-radius: 2px;
+}
+
+.step-dot.active { background: var(--ink); }
+.step-dot.done { background: var(--accent); }
+
+.step-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px 100px;
+}
+
+.step-question {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.step-question em {
+  font-style: italic;
+  color: var(--accent-deep);
+}
+
+.step-help {
+  font-size: 12px;
+  color: rgba(10, 14, 26, 0.55);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ============ VISTA 3: TIPO DE FALTA ============ */
+.fault-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.fault-option {
+  border: 1px solid var(--line);
+  background: white;
+  padding: 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.2s;
+  border-radius: 8px;
+  position: relative;
+}
+
+.fault-option:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.fault-option.selected {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.fault-option.selected .fault-art-ref { color: var(--accent); }
+
+.fault-icon {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 28px;
+  color: var(--accent-deep);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.fault-option.selected .fault-icon { color: var(--accent); }
+
+.fault-name {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.fault-art-ref {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(10, 14, 26, 0.5);
+}
+
+/* ============ VISTA 4: EVIDENCIA ============ */
+.evidence-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: white;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.evidence-row:hover {
+  border-color: var(--ink);
+}
+
+.evidence-row.captured {
+  background: rgba(30, 125, 79, 0.06);
+  border-color: var(--safe);
+}
+
+.evidence-glyph {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.evidence-row.captured .evidence-glyph {
+  background: var(--safe);
+  color: white;
+  border-color: var(--safe);
+}
+
+.evidence-text { flex: 1; }
+.evidence-label {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+.evidence-hint {
+  font-size: 11px;
+  color: rgba(10, 14, 26, 0.55);
+}
+
+.evidence-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(10, 14, 26, 0.5);
+}
+
+.evidence-row.captured .evidence-status {
+  color: var(--safe);
+  font-weight: 700;
+}
+
+/* Notas */
+.note-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: white;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: none;
+  min-height: 80px;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+/* ============ VISTA 5: FIRMA ============ */
+.sig-area {
+  background: white;
+  border: 2px dashed var(--line);
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sig-area:hover { border-color: var(--ink); }
+
+.sig-area.signed {
+  background: rgba(30, 125, 79, 0.04);
+  border-style: solid;
+  border-color: var(--safe);
+}
+
+.sig-glyph {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 56px;
+  color: var(--accent-deep);
+  line-height: 1;
+  font-weight: 400;
+}
+
+.sig-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(10, 14, 26, 0.5);
+}
+
+.sig-options {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sig-options button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: white;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.sig-options button:hover { border-color: var(--ink); }
+.sig-options button.warning {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ============ VISTA 6: CONFIRMACIÓN ============ */
+.receipt {
+  background: white;
+  margin: 0 20px;
+  padding: 24px 22px;
+  border-top: 4px solid var(--ink);
+  position: relative;
+  box-shadow: var(--shadow-md);
+  border-radius: 0 0 4px 4px;
+}
+
+.receipt::before, .receipt::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  width: 16px;
+  height: 16px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.receipt::before { left: -8px; }
+.receipt::after { right: -8px; }
+
+.receipt-header {
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 16px;
+}
+
+.receipt-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--ink);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.receipt-seal::before {
+  content: '✓';
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.receipt-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.receipt-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(10, 14, 26, 0.5);
+  letter-spacing: 0.1em;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+  align-items: baseline;
+}
+
+.receipt-row .key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(10, 14, 26, 0.55);
+}
+
+.receipt-row .val {
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+}
+
+.receipt-hash {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: rgba(10, 14, 26, 0.55);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.receipt-hash strong {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.receipt-footer .quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--paper);
+  margin-bottom: 8px;
+}
+
+.receipt-footer .ref {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.4);
+}
+
+.success-screen {
+  background: var(--ink);
+  color: var(--paper);
+  padding-top: 50px;
+}
+
+/* Botón inferior común */
+.bottom-action {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px 28px;
+  background: linear-gradient(to top, var(--paper) 70%, transparent);
+}
+
+.success-screen .bottom-action {
+  background: linear-gradient(to top, var(--ink) 70%, transparent);
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 16px;
+  border: none;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  transition: transform 0.15s;
+}
+
+.success-screen .btn-primary {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.btn-primary:hover { transform: scale(0.99); }
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Reloj animado en success */
+.timestamp-live {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(244, 241, 234, 0.4);
+  margin-top: 12px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: pulse 2s infinite;
+}
+
+/* Indicador de demo */
+.demo-flag {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ============ PANEL DE ADMINISTRADOR (escritorio / tablet) ============ */
+#screen-admin {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+#screen-admin.active { display: block; }
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+@media (max-width: 860px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { display: none; }
+}
+
+/* Barra lateral */
+.admin-sidebar {
+  background: rgba(10, 14, 26, 0.6);
+  border-right: 1px solid rgba(244, 241, 234, 0.08);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+}
+.admin-sidebar .side-brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.admin-sidebar .side-brand span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: rgba(244, 241, 234, 0.4);
+  margin-top: 4px;
+  font-weight: 400;
+}
+.admin-sidebar .side-sep {
+  height: 1px;
+  background: rgba(244, 241, 234, 0.08);
+  margin: 16px 0;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(244, 241, 234, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: rgba(244, 241, 234, 0.04); color: var(--paper); }
+.nav-item.active {
+  background: rgba(200, 169, 81, 0.1);
+  border-color: rgba(200, 169, 81, 0.3);
+  color: var(--accent);
+}
+.nav-item .ni-glyph {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  width: 18px;
+  text-align: center;
+}
+.nav-item .ni-soon {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  padding: 2px 5px;
+  border: 1px solid rgba(244, 241, 234, 0.2);
+  border-radius: 4px;
+  color: rgba(244, 241, 234, 0.4);
+  text-transform: uppercase;
+}
+
+/* Área principal */
+.admin-main {
+  padding: 32px 40px 60px;
+  overflow-y: auto;
+}
+@media (max-width: 600px) { .admin-main { padding: 24px 20px 60px; } }
+
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.admin-company {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.admin-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.05;
+}
+.admin-title em { font-style: italic; color: var(--accent); }
+.admin-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(244, 241, 234, 0.5);
+  text-align: right;
+}
+
+/* Tarjetas de métricas */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+@media (max-width: 760px) { .metric-grid { grid-template-columns: 1fr 1fr; } }
+
+.metric-card {
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  background: rgba(244, 241, 234, 0.02);
+  padding: 22px 20px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card .m-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.5);
+  margin-bottom: 12px;
+}
+.metric-card .m-value {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+}
+.metric-card .m-value.accent { color: var(--accent); }
+.metric-card .m-value.danger { color: var(--danger); }
+.metric-card .m-value.warn { color: var(--warn); }
+.metric-card .m-sub {
+  font-size: 12px;
+  color: rgba(244, 241, 234, 0.55);
+  margin-top: 8px;
+}
+
+/* Bloque de sección admin */
+.admin-section {
+  margin-bottom: 36px;
+}
+.admin-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.1);
+}
+.admin-section-head h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 20px;
+}
+.admin-section-head .hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.4);
+}
+
+/* Tabla de empleados (admin) */
+.emp-table { display: flex; flex-direction: column; gap: 4px; }
+.emp-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 140px 110px 90px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 8px;
+  background: rgba(244, 241, 234, 0.015);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.emp-row:hover { border-color: rgba(200, 169, 81, 0.3); background: rgba(200, 169, 81, 0.04); }
+@media (max-width: 760px) {
+  .emp-row { grid-template-columns: 44px 1fr 80px; }
+  .emp-row .col-dept, .emp-row .col-events { display: none; }
+}
+.emp-row .e-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--paper-warm);
+  color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px;
+  position: relative;
+}
+.emp-row .e-name { font-weight: 600; font-size: 14px; color: var(--paper); }
+.emp-row .e-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.5); margin-top: 2px;
+}
+.emp-row .col-dept {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.6);
+}
+.emp-row .col-events {
+  font-size: 12px; color: rgba(244, 241, 234, 0.6);
+}
+.emp-row .col-events strong { color: var(--paper); font-weight: 600; }
+
+/* Lista de alertas */
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--warn);
+  background: rgba(244, 241, 234, 0.02);
+  border-radius: 0 8px 8px 0;
+}
+.alert-row.danger { border-left-color: var(--danger); }
+.alert-row.safe { border-left-color: var(--safe); }
+.alert-row .a-icon {
+  font-family: 'Fraunces', serif; font-style: italic;
+  font-size: 22px; color: var(--accent);
+  width: 24px; text-align: center; flex-shrink: 0;
+}
+.alert-row .a-text { flex: 1; font-size: 13px; line-height: 1.4; color: rgba(244, 241, 234, 0.8); }
+.alert-row .a-text strong { color: var(--paper); }
+.alert-row .a-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.4); flex-shrink: 0;
+}
+
+/* Aviso de "próximamente" en módulos no construidos */
+.soon-banner {
+  margin-top: 8px;
+  padding: 16px 18px;
+  border: 1px dashed rgba(200, 169, 81, 0.4);
+  border-radius: 8px;
+  background: rgba(200, 169, 81, 0.04);
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(244, 241, 234, 0.7);
+}
+.soon-banner strong { color: var(--accent); }
+
+/* ============ EXPEDIENTE INDIVIDUAL ============ */
+.dossier-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.6); cursor: pointer;
+  margin-bottom: 20px; transition: color 0.2s;
+}
+.dossier-back:hover { color: var(--accent); }
+
+/* Encabezado del expediente: identidad + estado de un vistazo */
+.dossier-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 24px;
+  border: 1px solid rgba(244, 241, 234, 0.1);
+  border-radius: 8px;
+  background: rgba(244, 241, 234, 0.02);
+  margin-bottom: 12px;
+}
+@media (max-width: 680px) {
+  .dossier-head { grid-template-columns: auto 1fr; gap: 16px; }
+  .dossier-head .dh-actions { grid-column: 1 / -1; }
+}
+.dossier-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--paper-warm); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px;
+  position: relative; flex-shrink: 0;
+}
+.dossier-avatar .risk-dot { width: 18px; height: 18px; bottom: 0; right: 0; }
+.dossier-id .d-name {
+  font-family: 'Fraunces', serif; font-weight: 500; font-size: 26px; line-height: 1.1;
+}
+.dossier-id .d-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.5); margin-top: 6px;
+}
+.dossier-id .d-tags { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.dh-actions { display: flex; flex-direction: column; gap: 8px; }
+.dh-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 100px;
+  font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 12px;
+  cursor: pointer; border: 1px solid var(--accent); white-space: nowrap;
+  background: var(--accent); color: var(--ink); transition: all 0.2s;
+}
+.dh-btn:hover { transform: translateY(-1px); }
+.dh-btn.ghost { background: transparent; color: var(--accent); }
+.dh-btn.ghost:hover { background: rgba(200,169,81,0.08); }
+
+/* Barra de completitud del expediente */
+.dossier-completeness {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 24px; margin-bottom: 24px;
+  border: 1px solid rgba(244, 241, 234, 0.08);
+  border-radius: 8px; background: rgba(244, 241, 234, 0.015);
+}
+.dc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.5); white-space: nowrap;
+}
+.dc-bar { flex: 1; height: 6px; background: rgba(244,241,234,0.08); border-radius: 3px; overflow: hidden; }
+.dc-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.5s; }
+.dc-pct { font-family: 'Fraunces', serif; font-size: 18px; color: var(--accent); }
+
+/* Pestañas */
+.dossier-tabs {
+  display: flex; gap: 4px; margin-bottom: 24px;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.1);
+  overflow-x: auto;
+}
+.dtab {
+  padding: 12px 20px; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: rgba(244, 241, 234, 0.5);
+  border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.dtab:hover { color: var(--paper); }
+.dtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.dtab .dtab-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 1px 7px; border-radius: 10px;
+  background: rgba(244,241,234,0.1); color: rgba(244,241,234,0.7);
+}
+.dtab .dtab-badge.alert { background: rgba(192,57,43,0.2); color: var(--danger); }
+
+.dtab-panel { display: none; }
+.dtab-panel.active { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Cronología de eventos */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+  width: 2px; background: rgba(244,241,234,0.1);
+}
+.tl-event { position: relative; margin-bottom: 18px; }
+.tl-event::before {
+  content: ''; position: absolute; left: -28px; top: 4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--ink); border: 2px solid var(--accent);
+}
+.tl-event.danger::before { border-color: var(--danger); }
+.tl-event.warn::before { border-color: var(--warn); }
+.tl-card {
+  border: 1px solid rgba(244,241,234,0.1); border-radius: 8px;
+  padding: 14px 16px; background: rgba(244,241,234,0.02);
+}
+.tl-card:hover { border-color: rgba(200,169,81,0.3); }
+.tl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.tl-type { font-weight: 600; font-size: 14px; }
+.tl-date {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: rgba(244,241,234,0.45); white-space: nowrap;
+}
+.tl-detail { font-size: 12px; line-height: 1.5; color: rgba(244,241,234,0.65); margin-bottom: 8px; }
+.tl-foot { display: flex; gap: 14px; flex-wrap: wrap; }
+.tl-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(244,241,234,0.5); display: inline-flex; align-items: center; gap: 5px;
+}
+.tl-chip.law { color: var(--accent); }
+.tl-chip.sealed { color: var(--safe); }
+
+/* Documentos del expediente */
+.docs-intro {
+  font-size: 12px; line-height: 1.5; color: rgba(244,241,234,0.6);
+  margin-bottom: 16px; max-width: 620px;
+}
+.docs-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+}
+@media (max-width: 680px) { .docs-grid { grid-template-columns: 1fr; } }
+.doc-slot {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px; border-radius: 8px;
+  border: 1px solid rgba(244,241,234,0.1);
+  background: rgba(244,241,234,0.02); cursor: pointer;
+  transition: all 0.2s;
+}
+.doc-slot:hover { border-color: var(--accent); }
+.doc-slot.loaded { border-color: var(--safe); background: rgba(30,125,79,0.06); }
+.doc-glyph {
+  width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0;
+  border: 1px solid rgba(244,241,234,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px;
+  color: rgba(244,241,234,0.7);
+}
+.doc-slot.loaded .doc-glyph { background: var(--safe); border-color: var(--safe); color: white; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+.doc-hint { font-size: 11px; color: rgba(244,241,234,0.5); }
+.doc-state {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(244,241,234,0.45); white-space: nowrap;
+}
+.doc-slot.loaded .doc-state { color: var(--safe); font-weight: 700; }
+
+/* Checadas */
+.check-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;
+}
+@media (max-width: 600px) { .check-summary { grid-template-columns: 1fr; } }
+.check-stat {
+  padding: 16px; border-radius: 8px;
+  border: 1px solid rgba(244,241,234,0.1); background: rgba(244,241,234,0.02);
+}
+.check-stat .cs-val { font-family: 'Fraunces', serif; font-size: 28px; }
+.check-stat .cs-val.warn { color: var(--warn); }
+.check-stat .cs-lbl {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(244,241,234,0.5); margin-top: 4px;
+}
+.check-table { display: flex; flex-direction: column; gap: 4px; }
+.check-row {
+  display: grid; grid-template-columns: 120px 1fr 1fr 90px;
+  gap: 12px; align-items: center; padding: 12px 16px;
+  border: 1px solid rgba(244,241,234,0.08); border-radius: 8px;
+  background: rgba(244,241,234,0.015); font-size: 13px;
+}
+@media (max-width: 600px) { .check-row { grid-template-columns: 90px 1fr 1fr; } .check-row .cr-status { display:none; } }
+.check-row .cr-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244,241,234,0.7); }
+.check-row .cr-in, .check-row .cr-out { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.check-row .cr-status {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase; text-align: right;
+}
+.check-row .cr-status.ok { color: var(--safe); }
+.check-row .cr-status.late { color: var(--warn); }
+.check-row .cr-status.absent { color: var(--danger); }
+
+/* Empty state genérico */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  border: 1px dashed rgba(244,241,234,0.15); border-radius: 8px;
+}
+.empty-state .es-glyph {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 40px;
+  color: var(--accent-deep); margin-bottom: 12px;
+}
+.empty-state .es-text { font-size: 13px; color: rgba(244,241,234,0.6); line-height: 1.5; max-width: 360px; margin: 0 auto 16px; }
+
+/* Vista de checada (tablet de recepción) */
+.checador {
+  max-width: 480px; margin: 0 auto; padding: 40px 24px;
+  text-align: center;
+}
+.checador-clock {
+  font-family: 'JetBrains Mono', monospace; font-weight: 700;
+  font-size: 64px; color: var(--paper); letter-spacing: 0.02em; line-height: 1;
+}
+.checador-date {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(244,241,234,0.5); margin-top: 12px; margin-bottom: 36px;
+}
+.checador-prompt { font-family: 'Fraunces', serif; font-size: 22px; margin-bottom: 24px; }
+.checador-prompt em { font-style: italic; color: var(--accent); }
+.checador-emp-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px;
+}
+@media (max-width: 480px) { .checador-emp-grid { grid-template-columns: repeat(2, 1fr); } }
+.checador-emp {
+  padding: 16px 8px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(244,241,234,0.12); background: rgba(244,241,234,0.02);
+  transition: all 0.2s;
+}
+.checador-emp:hover { border-color: var(--accent); transform: translateY(-2px); }
+.checador-emp .ce-av {
+  width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px;
+  background: var(--paper-warm); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px;
+}
+.checador-emp .ce-name { font-size: 12px; font-weight: 600; }
+.checador-feedback {
+  padding: 28px; border-radius: 8px; border: 1px solid var(--safe);
+  background: rgba(30,125,79,0.08); margin-bottom: 20px;
+}
+.checador-feedback .cf-check {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 48px; color: var(--safe); line-height: 1;
+}
+.checador-feedback .cf-msg { font-family: 'Fraunces', serif; font-size: 20px; margin: 12px 0 6px; }
+.checador-feedback .cf-detail {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: rgba(244,241,234,0.6); letter-spacing: 0.08em;
+}
+.checador-meta {
+  display: flex; justify-content: center; gap: 20px; margin-top: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,241,234,0.4);
+}
+
+/* ============ GENERADOR DE CONTRATOS ============ */
+.gen-steps {
+  display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap;
+}
+.gen-step {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,241,234,0.4);
+}
+.gen-step .gs-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(244,241,234,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 11px;
+}
+.gen-step.active { color: var(--accent); }
+.gen-step.active .gs-num { border-color: var(--accent); color: var(--accent); }
+.gen-step.done { color: var(--safe); }
+.gen-step.done .gs-num { border-color: var(--safe); color: var(--safe); }
+.gen-step .gs-arrow { color: rgba(244,241,234,0.2); }
+
+.gen-panel { display: none; }
+.gen-panel.active { display: block; animation: fadeIn 0.3s; }
+
+/* Selector de tipos de contrato */
+.ctype-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+@media (max-width: 760px) { .ctype-grid { grid-template-columns: 1fr; } }
+.ctype-card {
+  border: 1px solid rgba(244,241,234,0.12); border-radius: 8px;
+  padding: 22px; cursor: pointer; transition: all 0.2s;
+  background: rgba(244,241,234,0.02); position: relative;
+}
+.ctype-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.ctype-card.selected { border-color: var(--accent); background: rgba(200,169,81,0.07); }
+.ctype-card.selected::after {
+  content: '✓'; position: absolute; top: 16px; right: 18px;
+  font-family: 'Fraunces', serif; font-style: italic; color: var(--accent); font-size: 20px;
+}
+.ctype-num {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 30px;
+  color: var(--accent-deep); line-height: 1; margin-bottom: 12px;
+}
+.ctype-card.selected .ctype-num { color: var(--accent); }
+.ctype-name {
+  font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; margin-bottom: 8px;
+}
+.ctype-rule {
+  font-size: 12px; line-height: 1.5; color: rgba(244,241,234,0.6); margin-bottom: 12px;
+}
+.ctype-dur {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 4px;
+  background: rgba(244,241,234,0.06); color: rgba(244,241,234,0.7);
+}
+.ctype-advice-slot {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px dashed rgba(244,241,234,0.12);
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,241,234,0.3);
+}
+
+/* Selección múltiple de empleados */
+.gen-help-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+}
+.gen-help-bar .ghb-text { font-size: 13px; color: rgba(244,241,234,0.65); }
+.gen-help-bar .ghb-text strong { color: var(--accent); }
+.gen-selectall {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: rgba(244,241,234,0.6);
+  cursor: pointer; padding: 6px 12px; border: 1px solid rgba(244,241,234,0.15);
+  border-radius: 100px; transition: all 0.2s;
+}
+.gen-selectall:hover { border-color: var(--accent); color: var(--accent); }
+
+.gen-emp-list { display: flex; flex-direction: column; gap: 6px; }
+.gen-emp {
+  display: grid; grid-template-columns: 28px 44px 1fr auto; gap: 14px;
+  align-items: center; padding: 12px 16px;
+  border: 1px solid rgba(244,241,234,0.08); border-radius: 8px;
+  background: rgba(244,241,234,0.015); cursor: pointer; transition: all 0.2s;
+}
+.gen-emp:hover { border-color: rgba(200,169,81,0.3); }
+.gen-emp.checked { border-color: var(--accent); background: rgba(200,169,81,0.05); }
+.gen-check {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1px solid rgba(244,241,234,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-style: italic; color: var(--ink);
+  font-size: 14px; transition: all 0.2s;
+}
+.gen-emp.checked .gen-check { background: var(--accent); border-color: var(--accent); }
+.gen-emp .ge-av {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--paper-warm); color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px;
+}
+.gen-emp .ge-name { font-weight: 600; font-size: 14px; color: var(--paper); }
+.gen-emp .ge-role {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: rgba(244,241,234,0.5); margin-top: 2px;
+}
+.gen-emp .ge-docs {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.gen-emp .ge-docs.ready { color: var(--safe); }
+.gen-emp .ge-docs.missing { color: var(--warn); }
+
+.gen-cta-bar {
+  position: sticky; bottom: 0; margin-top: 24px;
+  padding: 16px 0; display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: wrap;
+}
+.gen-cta-count { font-size: 13px; color: rgba(244,241,234,0.7); }
+.gen-cta-count strong { color: var(--accent); font-family: 'Fraunces', serif; font-size: 18px; }
+.gen-btn {
+  padding: 14px 28px; border-radius: 100px; border: none; cursor: pointer;
+  font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: 13px;
+  background: var(--accent); color: var(--ink); transition: all 0.2s;
+}
+.gen-btn:hover { transform: translateY(-1px); }
+.gen-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.gen-btn.ghost { background: transparent; color: rgba(244,241,234,0.6); border: 1px solid rgba(244,241,234,0.2); }
+.gen-btn.ghost:hover { color: var(--paper); border-color: var(--paper); }
+
+/* Documento de contrato (vista previa tipo papel) */
+.contract-paper {
+  background: var(--paper); color: var(--ink);
+  max-width: 720px; margin: 0 auto 24px; padding: 48px 56px;
+  border-radius: 4px; box-shadow: var(--shadow-lg);
+  font-family: 'Inter Tight', sans-serif; line-height: 1.7; font-size: 13px;
+}
+@media (max-width: 600px) { .contract-paper { padding: 32px 24px; } }
+.contract-paper h2 {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px;
+  text-align: center; line-height: 1.3; margin-bottom: 6px;
+}
+.contract-paper .cp-sub {
+  text-align: center; font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(10,14,26,0.5); margin-bottom: 28px;
+}
+.contract-paper p { margin-bottom: 14px; text-align: justify; }
+.contract-paper .cp-clause-title {
+  font-weight: 700; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.08em; margin: 20px 0 8px;
+}
+.contract-paper .fill {
+  background: rgba(200,169,81,0.18); padding: 1px 5px; border-radius: 3px;
+  font-weight: 600; border-bottom: 1px solid var(--accent-deep);
+}
+.cp-legend {
+  max-width: 720px; margin: 0 auto 20px; padding: 12px 16px;
+  border: 1px dashed rgba(200,169,81,0.4); border-radius: 8px;
+  background: rgba(200,169,81,0.04); font-size: 11px; line-height: 1.5;
+  color: rgba(244,241,234,0.7);
+}
+.cp-legend strong { color: var(--accent); }
+.cp-legend .fill-demo {
+  background: rgba(200,169,81,0.25); color: var(--paper); padding: 1px 5px; border-radius: 3px;
+}
+
+/* Sistema de firmas */
+.sign-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+  max-width: 720px; margin: 0 auto 20px;
+}
+@media (max-width: 600px) { .sign-grid { grid-template-columns: 1fr; } }
+.sign-box {
+  border: 1px solid rgba(244,241,234,0.12); border-radius: 8px;
+  padding: 18px; background: rgba(244,241,234,0.02);
+  text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.sign-box:hover { border-color: var(--accent); }
+.sign-box.signed { border-color: var(--safe); background: rgba(30,125,79,0.06); }
+.sign-box .sb-role {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(244,241,234,0.5); margin-bottom: 10px;
+}
+.sign-box .sb-line {
+  height: 60px; display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid rgba(244,241,234,0.2); margin-bottom: 10px;
+}
+.sign-box.signed .sb-line { border-bottom-color: var(--safe); }
+.sign-box .sb-sig {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 30px; color: var(--accent);
+}
+.sign-box .sb-prompt {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(244,241,234,0.35);
+}
+.sign-box .sb-name { font-weight: 600; font-size: 13px; color: var(--paper); }
+.sign-box .sb-status {
+  font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
+  color: rgba(244,241,234,0.4);
+}
+.sign-box.signed .sb-status { color: var(--safe); font-weight: 700; }
+
+/* Pantalla de éxito del contrato */
+.gen-success {
+  max-width: 560px; margin: 0 auto; text-align: center; padding: 40px 24px;
+}
+.gen-success .gsx-seal {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px; background: rgba(30,125,79,0.12);
+  border: 1px solid var(--safe); border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--safe);
+  margin-bottom: 20px;
+}
+.gen-success h2 {
+  font-family: 'Fraunces', serif; font-weight: 400; font-size: 30px; line-height: 1.15; margin-bottom: 12px;
+}
+.gen-success h2 em { font-style: italic; color: var(--accent); }
+.gen-success .gsx-detail {
+  font-size: 14px; line-height: 1.6; color: rgba(244,241,234,0.7); margin-bottom: 24px;
+}
+.gen-success .gsx-list {
+  text-align: left; max-width: 380px; margin: 0 auto 28px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.gen-success .gsx-item {
+  display: flex; align-items: center; gap: 10px; font-size: 13px;
+  padding: 10px 14px; border-radius: 8px; background: rgba(244,241,234,0.03);
+}
+.gen-success .gsx-item .gi-check { color: var(--safe); font-family: 'Fraunces', serif; font-style: italic; }
+
+/* ============ GENERADOR DE ACTAS ADMINISTRATIVAS ============ */
+.acta-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;
+}
+@media (max-width: 900px) { .acta-layout { grid-template-columns: 1fr; } }
+
+.acta-form {
+  border: 1px solid rgba(244,241,234,0.1); border-radius: 8px;
+  padding: 24px; background: rgba(244,241,234,0.02);
+}
+.acta-form h3 {
+  font-family: 'Fraunces', serif; font-weight: 500; font-size: 18px; margin-bottom: 4px;
+}
+.acta-form .af-intro {
+  font-size: 12px; color: rgba(244,241,234,0.55); line-height: 1.5; margin-bottom: 20px;
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(244,241,234,0.6); margin-bottom: 6px;
+}
+.field label .req { color: var(--accent); }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 11px 13px; border-radius: 8px;
+  border: 1px solid rgba(244,241,234,0.15); background: rgba(10,14,26,0.4);
+  color: var(--paper); font-family: 'Inter Tight', sans-serif; font-size: 13px;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--accent);
+}
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+.field select option { background: var(--ink); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+/* Vista previa del acta (papel) */
+.acta-preview {
+  position: sticky; top: 20px;
+}
+.acta-paper {
+  background: var(--paper); color: var(--ink);
+  padding: 40px 44px; border-radius: 4px; box-shadow: var(--shadow-lg);
+  font-family: 'Inter Tight', sans-serif; line-height: 1.7; font-size: 12.5px;
+  max-height: 70vh; overflow-y: auto;
+}
+@media (max-width: 600px) { .acta-paper { padding: 28px 24px; } }
+.acta-paper h2 {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px;
+  text-align: center; line-height: 1.3; margin-bottom: 4px; text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.acta-paper .ap-sub {
+  text-align: center; font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(10,14,26,0.5); margin-bottom: 24px;
+}
+.acta-paper p { margin-bottom: 12px; text-align: justify; }
+.acta-paper .ap-clause {
+  font-weight: 700; font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.06em; margin: 16px 0 6px;
+}
+.acta-paper .live { transition: background 0.3s; }
+.acta-paper .live.flash { background: rgba(200,169,81,0.25); }
+.acta-paper .manifest-box {
+  border: 1px solid rgba(10,14,26,0.15); border-radius: 6px;
+  padding: 14px; margin: 14px 0; background: rgba(10,14,26,0.02);
+  font-style: italic; color: rgba(10,14,26,0.7); min-height: 50px;
+}
+.acta-empty-hint {
+  text-align: center; padding: 60px 24px; color: rgba(10,14,26,0.4);
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 16px;
+}
+
+/* ============ EXPORTACIÓN FORENSE ============ */
+.export-hero {
+  border: 1px solid rgba(200,169,81,0.25); border-radius: 8px;
+  padding: 28px; background: rgba(200,169,81,0.04); margin-bottom: 24px;
+}
+.export-hero h3 {
+  font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin-bottom: 8px;
+}
+.export-hero h3 em { font-style: italic; color: var(--accent); }
+.export-hero p { font-size: 13px; line-height: 1.6; color: rgba(244,241,234,0.7); max-width: 600px; }
+
+.export-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.export-opt {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+  border: 1px solid rgba(244,241,234,0.1); border-radius: 8px;
+  background: rgba(244,241,234,0.02); cursor: pointer; transition: all 0.2s;
+}
+.export-opt:hover { border-color: var(--accent); }
+.export-opt.on { border-color: var(--safe); background: rgba(30,125,79,0.06); }
+.export-opt .eo-toggle {
+  width: 40px; height: 22px; border-radius: 100px; flex-shrink: 0;
+  background: rgba(244,241,234,0.15); position: relative; transition: all 0.2s;
+}
+.export-opt.on .eo-toggle { background: var(--safe); }
+.export-opt .eo-toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 18px; height: 18px; border-radius: 50%; background: var(--paper); transition: all 0.2s;
+}
+.export-opt.on .eo-toggle::after { left: 20px; }
+.export-opt .eo-text { flex: 1; }
+.export-opt .eo-name { font-weight: 600; font-size: 13px; }
+.export-opt .eo-hint { font-size: 11px; color: rgba(244,241,234,0.5); margin-top: 2px; }
+.export-opt .eo-count {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent);
+}
+
+/* Documento forense (vista de exportación) */
+.forensic-doc {
+  background: var(--paper); color: var(--ink);
+  max-width: 760px; margin: 0 auto; padding: 48px 56px;
+  border-radius: 4px; box-shadow: var(--shadow-lg); font-size: 12.5px; line-height: 1.65;
+}
+@media (max-width: 600px) { .forensic-doc { padding: 28px 22px; } }
+.forensic-doc .fd-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 16px; border-bottom: 2px solid var(--ink); margin-bottom: 20px;
+}
+.forensic-doc .fd-brand {
+  font-family: 'Fraunces', serif; font-weight: 900; font-size: 16px; letter-spacing: 0.2em; color: var(--ink);
+}
+.forensic-doc .fd-brand span {
+  display: block; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  letter-spacing: 0.1em; color: rgba(10,14,26,0.5); margin-top: 4px; font-weight: 400;
+}
+.forensic-doc .fd-meta {
+  text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: rgba(10,14,26,0.55); line-height: 1.6;
+}
+.forensic-doc h1 {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-bottom: 4px;
+}
+.forensic-doc .fd-subject {
+  font-size: 12px; color: rgba(10,14,26,0.6); margin-bottom: 20px;
+}
+.forensic-doc .fd-section-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-deep);
+  margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(10,14,26,0.12);
+}
+.fd-event {
+  padding: 12px 0; border-bottom: 1px dashed rgba(10,14,26,0.12);
+}
+.fd-event .fde-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.fd-event .fde-type { font-weight: 700; font-size: 13px; }
+.fd-event .fde-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(10,14,26,0.5); }
+.fd-event .fde-detail { font-size: 12px; color: rgba(10,14,26,0.7); margin-bottom: 4px; }
+.fd-event .fde-meta { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: rgba(10,14,26,0.5); display: flex; gap: 12px; flex-wrap: wrap; }
+.fd-event .fde-meta .law { color: var(--accent-deep); font-weight: 600; }
+.fd-hash {
+  margin-top: 8px; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+  color: rgba(10,14,26,0.45); word-break: break-all;
+}
+.forensic-doc .fd-footer {
+  margin-top: 28px; padding-top: 16px; border-top: 2px solid var(--ink);
+  font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: rgba(10,14,26,0.5);
+  line-height: 1.6; text-align: center;
+}
+.export-actions { display: flex; gap: 12px; justify-content: center; margin: 24px auto 0; max-width: 760px; flex-wrap: wrap; }
+
+/* Aviso de simulación legal */
+.legal-note {
+  margin: 16px auto; max-width: 760px; padding: 12px 16px;
+  border-left: 3px solid var(--warn); border-radius: 0 8px 8px 0;
+  background: rgba(214,137,16,0.06); font-size: 11px; line-height: 1.5;
+  color: rgba(244,241,234,0.7);
+}
+.legal-note strong { color: var(--warn); }
+
+/* Banner instalación PWA */
+.install-hint {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  z-index: 400; max-width: 90%;
+  display: none; align-items: center; gap: 14px;
+  padding: 12px 20px; border-radius: 100px;
+  background: var(--ink-soft); border: 1px solid var(--accent);
+  box-shadow: var(--shadow-lg); font-size: 12px;
+}
+.install-hint.show { display: flex; }
+.install-hint button {
+  border: none; background: var(--accent); color: var(--ink);
+  font-family: inherit; font-weight: 600; font-size: 11px;
+  padding: 8px 16px; border-radius: 100px; cursor: pointer;
+}
+.install-hint .ih-close { background: transparent; color: rgba(244,241,234,0.5); padding: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PANTALLA: SELECCIÓN DE ROL (navegación raíz)                  -->
+<!-- ============================================================ -->
+<div id="screen-home" class="app-screen active">
+  <div class="home-brand">
+    <span class="mark">AQUILES <em style="font-style:italic; color:var(--paper); font-weight:400;">Patrón</em></span>
+    <span class="div"></span>
+    <span class="tag">Demo v1.0</span>
+  </div>
+  <h1>Cada falta documentada en el momento.<br /><em>Cada juicio ganado años después.</em></h1>
+  <p class="home-sub">Esta es una demostración navegable. Elige desde qué rol quieres explorar el sistema.</p>
+
+  <div class="role-grid">
+    <button class="role-card" onclick="showScreen('screen-supervisor')">
+      <div class="role-num">i</div>
+      <div class="role-name">Supervisor</div>
+      <div class="role-desc">Registra eventos laborales desde el celular, en menos de 60 segundos, en el momento que ocurren.</div>
+      <div class="role-device">▸ Vista de celular</div>
+    </button>
+    <button class="role-card" onclick="showScreen('screen-admin')">
+      <div class="role-num">ii</div>
+      <div class="role-name">Administrador</div>
+      <div class="role-desc">Panel de control: semáforo de riesgo, expedientes, contratos, actas y exportación forense.</div>
+      <div class="role-device">▸ Vista de escritorio / tablet</div>
+    </button>
+  </div>
+
+  <div class="home-footer" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+    <span>Una herramienta de AQUILES Blindaje Corporativo &amp; Laboral</span>
+    <span style="opacity:0.6;">DIEZ Creatividad Impresa · Colima · Cliente de demostración</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANTALLA: SUPERVISOR (tu prototipo original, intacto)        -->
+<!-- ============================================================ -->
+<div id="screen-supervisor" class="app-screen">
+  <div class="nav-back-root" onclick="showScreen('screen-home')">← Inicio</div>
+
+  <div class="hero">
+    <div class="brand-line">
+      <span class="brand-mark">AQUILES</span>
+      <span class="brand-divider"></span>
+      <span class="brand-tag">Patrón · Flujo del supervisor</span>
+    </div>
+    <h1>Cada falta documentada en el momento.<br /><em>Cada juicio ganado años después.</em></h1>
+    <p>Un supervisor registra una llegada tarde en menos de un minuto. Seis meses después, ese registro &mdash; con sello de tiempo, evidencia y firma &mdash; es la prueba que decide un juicio laboral. Toca el flujo del lado derecho para verlo en acción.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- IZQUIERDA: Contexto del problema -->
+    <aside class="side-panel side-left">
+      <h3>El problema</h3>
+      <ul>
+        <li>En México, en juicios laborales <strong>la carga de la prueba es del patrón</strong>.</li>
+        <li>La empresa pierde porque <strong>no documentó nada en tiempo real</strong>, no porque el trabajador tuviera la razón.</li>
+        <li>Los abogados externos solo revisan expedientes <strong>de vez en cuando</strong>. Eso es reactivo, no preventivo.</li>
+        <li>Cuando llega la demanda, ya no se puede fabricar evidencia hacia atrás sin caer en falsedad.</li>
+      </ul>
+    </aside>
+
+    <!-- CENTRO: Teléfono -->
+    <div class="phone-wrap">
+      <span class="phone-label">▼ Tócalo · funciona ▼</span>
+      <div class="phone">
+        <div class="screen">
+          <div class="demo-flag">Demo</div>
+
+          <!-- ============ VISTA 1: DASHBOARD ============ -->
+          <div class="view active" id="view-dashboard">
+            <div class="status-bar">
+              <span id="time-1">9:47</span>
+              <span>•••</span>
+            </div>
+            <div class="dashboard-greeting">
+              <div class="label">Supervisor · Taller</div>
+              <h2>Hola, <em>Sebastián</em></h2>
+              <div class="meta">7 empleados activos · 3 con riesgo elevado</div>
+            </div>
+
+            <div class="section-title">
+              <span>Tu equipo</span>
+              <span class="count">7</span>
+            </div>
+
+            <div class="employee-list">
+              <div class="employee-card">
+                <div class="employee-avatar">RM<span class="risk-dot danger"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">Roberto Méndez</div>
+                  <div class="employee-role">Prensista · 4 faltas</div>
+                </div>
+                <span class="risk-tag danger">Alto</span>
+              </div>
+              <div class="employee-card">
+                <div class="employee-avatar">AS<span class="risk-dot warn"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">Ana Sánchez</div>
+                  <div class="employee-role">Diseño · 2 faltas</div>
+                </div>
+                <span class="risk-tag warn">Medio</span>
+              </div>
+              <div class="employee-card">
+                <div class="employee-avatar">JT<span class="risk-dot warn"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">Jorge Torres</div>
+                  <div class="employee-role">Acabados · 3 retardos</div>
+                </div>
+                <span class="risk-tag warn">Medio</span>
+              </div>
+              <div class="employee-card">
+                <div class="employee-avatar">LM<span class="risk-dot safe"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">Lucía Mora</div>
+                  <div class="employee-role">Administrativo · sin observac.</div>
+                </div>
+                <span class="risk-tag safe">Bajo</span>
+              </div>
+              <div class="employee-card">
+                <div class="employee-avatar">MV<span class="risk-dot safe"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">María Vázquez</div>
+                  <div class="employee-role">Recepción · sin observac.</div>
+                </div>
+                <span class="risk-tag safe">Bajo</span>
+              </div>
+              <div class="employee-card">
+                <div class="employee-avatar">PR<span class="risk-dot safe"></span></div>
+                <div class="employee-info">
+                  <div class="employee-name">Pedro Ramírez</div>
+                  <div class="employee-role">Facturación · sin observac.</div>
+                </div>
+                <span class="risk-tag safe">Bajo</span>
+              </div>
+            </div>
+
+            <button class="fab" onclick="goTo('view-fault-type')">
+              <span class="fab-icon">+</span>
+              Registrar evento
+            </button>
+          </div>
+
+          <!-- ============ VISTA 2: TIPO DE FALTA ============ -->
+          <div class="view" id="view-fault-type">
+            <div class="status-bar">
+              <span id="time-2">9:47</span>
+              <span>•••</span>
+            </div>
+            <div class="app-header">
+              <div class="back" onclick="goTo('view-dashboard')">←</div>
+              <div>
+                <div class="title">Nuevo evento</div>
+                <div class="subtitle">Paso 1 de 4 · Tipo</div>
+              </div>
+            </div>
+            <div class="step-indicator">
+              <div class="step-dot active"></div>
+              <div class="step-dot"></div>
+              <div class="step-dot"></div>
+              <div class="step-dot"></div>
+            </div>
+
+            <div class="step-content">
+              <div class="step-question">¿Qué <em>ocurrió</em>?</div>
+              <div class="step-help">Selecciona el tipo de evento. Cada uno se vincula al artículo correspondiente de la LFT.</div>
+
+              <div class="fault-grid">
+                <div class="fault-option" onclick="selectFault(this, 'Llegada tarde / Retardo')">
+                  <div class="fault-icon">i</div>
+                  <div class="fault-name">Llegada tarde</div>
+                  <div class="fault-art-ref">Art. 47-X LFT</div>
+                </div>
+                <div class="fault-option" onclick="selectFault(this, 'Falta injustificada')">
+                  <div class="fault-icon">ii</div>
+                  <div class="fault-name">Falta injustificada</div>
+                  <div class="fault-art-ref">Art. 47-X LFT</div>
+                </div>
+                <div class="fault-option" onclick="selectFault(this, 'Insubordinación')">
+                  <div class="fault-icon">iii</div>
+                  <div class="fault-name">Insubordinación</div>
+                  <div class="fault-art-ref">Art. 47-XI LFT</div>
+                </div>
+                <div class="fault-option" onclick="selectFault(this, 'Daño a equipo')">
+                  <div class="fault-icon">iv</div>
+                  <div class="fault-name">Daño a equipo</div>
+                  <div class="fault-art-ref">Art. 47-VI LFT</div>
+                </div>
+                <div class="fault-option" onclick="selectFault(this, 'Riña / Violencia')">
+                  <div class="fault-icon">v</div>
+                  <div class="fault-name">Riña / Violencia</div>
+                  <div class="fault-art-ref">Art. 47-II LFT</div>
+                </div>
+                <div class="fault-option" onclick="selectFault(this, 'Otra falta')">
+                  <div class="fault-icon">vi</div>
+                  <div class="fault-name">Otra falta</div>
+                  <div class="fault-art-ref">Especificar</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom-action">
+              <button class="btn-primary" id="btn-step1" onclick="goTo('view-evidence')" disabled>Continuar</button>
+            </div>
+          </div>
+
+          <!-- ============ VISTA 3: EVIDENCIA ============ -->
+          <div class="view" id="view-evidence">
+            <div class="status-bar">
+              <span id="time-3">9:48</span>
+              <span>•••</span>
+            </div>
+            <div class="app-header">
+              <div class="back" onclick="goTo('view-fault-type')">←</div>
+              <div>
+                <div class="title">Evidencia</div>
+                <div class="subtitle">Paso 2 de 4 · Roberto Méndez</div>
+              </div>
+            </div>
+            <div class="step-indicator">
+              <div class="step-dot done"></div>
+              <div class="step-dot active"></div>
+              <div class="step-dot"></div>
+              <div class="step-dot"></div>
+            </div>
+
+            <div class="step-content">
+              <div class="step-question">Captura <em>la evidencia</em></div>
+              <div class="step-help">Mientras más medios, más sólido el expediente. Mínimo 1 obligatorio.</div>
+
+              <div class="evidence-row" id="ev-photo" onclick="captureEvidence(this)">
+                <div class="evidence-glyph">F</div>
+                <div class="evidence-text">
+                  <div class="evidence-label">Foto del checador</div>
+                  <div class="evidence-hint">Hora del reloj físico + identificación</div>
+                </div>
+                <div class="evidence-status">Tocar</div>
+              </div>
+
+              <div class="evidence-row" id="ev-audio" onclick="captureEvidence(this)">
+                <div class="evidence-glyph">A</div>
+                <div class="evidence-text">
+                  <div class="evidence-label">Audio / Video</div>
+                  <div class="evidence-hint">Diálogo con el trabajador</div>
+                </div>
+                <div class="evidence-status">Tocar</div>
+              </div>
+
+              <div class="evidence-row" id="ev-witness" onclick="captureEvidence(this)">
+                <div class="evidence-glyph">T</div>
+                <div class="evidence-text">
+                  <div class="evidence-label">Testigos</div>
+                  <div class="evidence-hint">2 mínimo, con identificación</div>
+                </div>
+                <div class="evidence-status">Tocar</div>
+              </div>
+
+              <div style="margin-top:16px;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(10,14,26,0.55);margin-bottom:6px;">Notas del supervisor</div>
+                <textarea class="note-input" id="note-input" placeholder="Roberto llegó a las 9:35 AM. Hora de entrada: 9:00 AM. Cuarta vez este mes. Se le pidió firmar el reporte..."></textarea>
+              </div>
+            </div>
+
+            <div class="bottom-action">
+              <button class="btn-primary" id="btn-step2" onclick="goTo('view-signature')" disabled>Continuar</button>
+            </div>
+          </div>
+
+          <!-- ============ VISTA 4: FIRMA ============ -->
+          <div class="view" id="view-signature">
+            <div class="status-bar">
+              <span id="time-4">9:49</span>
+              <span>•••</span>
+            </div>
+            <div class="app-header">
+              <div class="back" onclick="goTo('view-evidence')">←</div>
+              <div>
+                <div class="title">Firma del trabajador</div>
+                <div class="subtitle">Paso 3 de 4 · Roberto Méndez</div>
+              </div>
+            </div>
+            <div class="step-indicator">
+              <div class="step-dot done"></div>
+              <div class="step-dot done"></div>
+              <div class="step-dot active"></div>
+              <div class="step-dot"></div>
+            </div>
+
+            <div class="step-content">
+              <div class="step-question">Pídele que <em>firme</em></div>
+              <div class="step-help">Si se niega, registra la negativa con dos testigos. Esa constancia tiene el mismo valor probatorio que una firma.</div>
+
+              <div class="sig-area" id="sig-area" onclick="signDocument()">
+                <div class="sig-glyph">RM</div>
+                <div class="sig-label">Toca para simular firma</div>
+              </div>
+
+              <div class="sig-options">
+                <button onclick="signDocument()">Firmó</button>
+                <button class="warning" onclick="refuseSign()">Se negó · constancia</button>
+              </div>
+            </div>
+
+            <div class="bottom-action">
+              <button class="btn-primary" id="btn-step3" onclick="goTo('view-success')" disabled>Sellar y guardar</button>
+            </div>
+          </div>
+
+          <!-- ============ VISTA 5: ÉXITO + RECIBO ============ -->
+          <div class="view success-screen" id="view-success">
+            <div class="status-bar" style="color:var(--paper);">
+              <span id="time-5">9:50</span>
+              <span>•••</span>
+            </div>
+
+            <div style="text-align:center;padding:24px 24px 8px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Registro blindado</div>
+              <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:24px;line-height:1.1;color:var(--paper);">El expediente <em style="font-style:italic;color:var(--accent);">guardó la verdad</em></h2>
+            </div>
+
+            <div class="receipt">
+              <div class="receipt-header">
+                <div class="receipt-seal">Sellado · Inmutable</div>
+                <div class="receipt-title">Acta de retardo</div>
+                <div class="receipt-id">REG-DIEZ-20260507-09473821</div>
+              </div>
+
+              <div class="receipt-row">
+                <span class="key">Trabajador</span>
+                <span class="val">Roberto Méndez</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Tipo</span>
+                <span class="val" id="receipt-fault">Llegada tarde</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Fundamento</span>
+                <span class="val">Art. 47-X LFT</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Fecha y hora</span>
+                <span class="val">7 may 2026 · 09:47:21</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Geolocalización</span>
+                <span class="val">19.244° N, 103.725° W</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Evidencia</span>
+                <span class="val" id="receipt-evidence">Foto · Notas</span>
+              </div>
+              <div class="receipt-row">
+                <span class="key">Firma</span>
+                <span class="val" id="receipt-signature">Recabada</span>
+              </div>
+
+              <div class="receipt-hash">
+                <strong>Hash criptográfico SHA-256</strong>
+                a3f8b2c91d7e4f6a8b9c0d1e2f3a4b5c
+                6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a
+              </div>
+            </div>
+
+            <div class="receipt-footer">
+              <div class="quote">"En derecho laboral, la percepción no basta:<br>lo que no se acredita, no existe."</div>
+              <div class="ref">— Principio rector AQUILES</div>
+              <div class="timestamp-live">
+                <span class="live-dot"></span>Sincronizado · respaldo en 3 nodos
+              </div>
+            </div>
+
+            <div class="bottom-action">
+              <button class="btn-primary" onclick="resetFlow()">Volver al inicio</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <span class="phone-label">↑ El supervisor lo hace en &lt; 60 seg ↑</span>
+    </div>
+
+    <!-- DERECHA: Por qué es defensible -->
+    <aside class="side-panel side-right">
+      <h3>Por qué gana juicios</h3>
+      <ul>
+        <li><strong>Sello de tiempo criptográfico</strong> &mdash; el evento no se pudo fabricar después; el hash lo prueba.</li>
+        <li><strong>Geolocalización</strong> al momento del registro &mdash; comprueba dónde ocurrió.</li>
+        <li><strong>Multimedia anclada al evento</strong> &mdash; foto, audio, testigos, todo en el mismo paquete.</li>
+        <li><strong>Firma o constancia de negativa</strong> &mdash; ambas con el mismo valor procesal.</li>
+        <li><strong>Cadena de custodia</strong> &mdash; quién registró, desde qué dispositivo, cuándo se vio.</li>
+        <li><strong>Exportación forense</strong> &mdash; el día de la demanda, el abogado descarga el expediente listo.</li>
+      </ul>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANTALLA: PANEL DE ADMINISTRADOR (escritorio / tablet)       -->
+<!-- ============================================================ -->
+<div id="screen-admin" class="app-screen">
+  <div class="admin-shell">
+
+    <!-- Barra lateral -->
+    <aside class="admin-sidebar">
+      <div class="side-brand">AQUILES<span>Patrón · Admin</span></div>
+      <div class="side-sep"></div>
+      <div class="nav-item active" onclick="adminGoView('view-admin-general', this)"><span class="ni-glyph">i</span> Vista general</div>
+      <div class="nav-item" onclick="openDossier()"><span class="ni-glyph">ii</span> Expedientes</div>
+      <div class="nav-item" onclick="showScreen('screen-checador')"><span class="ni-glyph">iii</span> Checadas</div>
+      <div class="nav-item" onclick="openGenerator()"><span class="ni-glyph">iv</span> Contratos</div>
+      <div class="nav-item" onclick="openActa()"><span class="ni-glyph">v</span> Actas</div>
+      <div class="nav-item" onclick="openExport()"><span class="ni-glyph">vi</span> Exportar expediente</div>
+      <div class="side-sep"></div>
+      <div class="nav-item" onclick="showScreen('screen-home')"><span class="ni-glyph">←</span> Salir</div>
+    </aside>
+
+    <!-- Área principal -->
+    <main class="admin-main">
+
+      <!-- ===== VISTA: GENERAL ===== -->
+      <div class="admin-view active" id="view-admin-general">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+          <div class="admin-title">Vista <em>general</em></div>
+        </div>
+        <div class="admin-date">
+          <div id="admin-date-line">jueves 7 de mayo, 2026</div>
+          <div id="admin-clock" style="margin-top:4px;color:var(--accent);">09:47:21</div>
+        </div>
+      </div>
+
+      <!-- Métricas -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="m-label">Empleados activos</div>
+          <div class="m-value">7</div>
+          <div class="m-sub">3 taller · 1 diseño · 3 admin.</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Eventos del mes</div>
+          <div class="m-value accent">11</div>
+          <div class="m-sub">9 retardos · 2 faltas</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Riesgo elevado</div>
+          <div class="m-value danger">1</div>
+          <div class="m-sub">Roberto Méndez · 4 faltas</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Alertas pendientes</div>
+          <div class="m-value warn">3</div>
+          <div class="m-sub">Requieren tu atención</div>
+        </div>
+      </div>
+
+      <!-- Empleados -->
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <h3>Empleados</h3>
+          <span class="hint">Semáforo de riesgo legal</span>
+        </div>
+        <div class="emp-table">
+          <div class="emp-row" onclick="openDossier()">
+            <div class="e-avatar">RM<span class="risk-dot danger"></span></div>
+            <div><div class="e-name">Roberto Méndez</div><div class="e-role">Prensista</div></div>
+            <div class="col-dept">Taller</div>
+            <div class="col-events"><strong>4</strong> faltas / 30 días</div>
+            <span class="risk-tag danger">Alto</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">AS<span class="risk-dot warn"></span></div>
+            <div><div class="e-name">Ana Sánchez</div><div class="e-role">Diseñadora</div></div>
+            <div class="col-dept">Diseño</div>
+            <div class="col-events"><strong>2</strong> faltas / 30 días</div>
+            <span class="risk-tag warn">Medio</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">JT<span class="risk-dot warn"></span></div>
+            <div><div class="e-name">Jorge Torres</div><div class="e-role">Op. acabados</div></div>
+            <div class="col-dept">Taller</div>
+            <div class="col-events"><strong>3</strong> retardos / 30 días</div>
+            <span class="risk-tag warn">Medio</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">SR<span class="risk-dot safe"></span></div>
+            <div><div class="e-name">Sebastián Ríos</div><div class="e-role">Supervisor</div></div>
+            <div class="col-dept">Taller</div>
+            <div class="col-events">sin observaciones</div>
+            <span class="risk-tag safe">Bajo</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">LM<span class="risk-dot safe"></span></div>
+            <div><div class="e-name">Lucía Mora</div><div class="e-role">Aux. administrativa</div></div>
+            <div class="col-dept">Admin.</div>
+            <div class="col-events">sin observaciones</div>
+            <span class="risk-tag safe">Bajo</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">MV<span class="risk-dot safe"></span></div>
+            <div><div class="e-name">María Vázquez</div><div class="e-role">Recepción</div></div>
+            <div class="col-dept">Admin.</div>
+            <div class="col-events">sin observaciones</div>
+            <span class="risk-tag safe">Bajo</span>
+          </div>
+          <div class="emp-row">
+            <div class="e-avatar">PR<span class="risk-dot safe"></span></div>
+            <div><div class="e-name">Pedro Ramírez</div><div class="e-role">Facturación</div></div>
+            <div class="col-dept">Admin.</div>
+            <div class="col-events">sin observaciones</div>
+            <span class="risk-tag safe">Bajo</span>
+          </div>
+        </div>
+        <div class="soon-banner">
+          <strong>Toca a Roberto Méndez</strong> para abrir su expediente individual: cronología de eventos, documentos (INE, CURP, NSS), contratos y checadas, todo en un solo lugar. <strong>Contratos y actas</strong> se activan en las Sesiones 3 y 4.
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <h3>Alertas pendientes</h3>
+          <span class="hint">3 sin atender</span>
+        </div>
+        <div class="alert-list">
+          <div class="alert-row danger">
+            <div class="a-icon">!</div>
+            <div class="a-text"><strong>Roberto Méndez</strong> alcanzó 4 faltas en 30 días. Patrón suficiente para rescisión justificada documentada (Art. 47-X LFT).</div>
+            <div class="a-time">Hoy 09:47</div>
+          </div>
+          <div class="alert-row">
+            <div class="a-icon">~</div>
+            <div class="a-text"><strong>Jorge Torres</strong> acumula 3 retardos. Un retardo más lo mueve a riesgo alto.</div>
+            <div class="a-time">Ayer 18:02</div>
+          </div>
+          <div class="alert-row">
+            <div class="a-icon">~</div>
+            <div class="a-text"><strong>Ana Sánchez</strong> tiene un contrato a prueba que vence en 6 días. Decidir renovación o conversión.</div>
+            <div class="a-time">5 may</div>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- /view-admin-general -->
+
+      <!-- ===== VISTA: EXPEDIENTE INDIVIDUAL (Roberto Méndez) ===== -->
+      <div class="admin-view" id="view-admin-dossier" style="display:none;">
+        <div class="dossier-back" onclick="adminGoView('view-admin-general')">← Volver a la vista general</div>
+
+        <div class="dossier-head">
+          <div class="dossier-avatar">RM<span class="risk-dot danger"></span></div>
+          <div class="dossier-id">
+            <div class="d-name">Roberto Méndez Olvera</div>
+            <div class="d-meta">Prensista · Taller · Alta: 12 ene 2024 · Contrato indeterminado</div>
+            <div class="d-tags">
+              <span class="risk-tag danger">Riesgo alto</span>
+              <span class="risk-tag warn">4 faltas / 30 días</span>
+            </div>
+          </div>
+          <div class="dh-actions">
+            <div class="dh-btn" onclick="openGenerator()">＋ Generar contrato</div>
+            <div class="dh-btn ghost" onclick="openActa()">＋ Levantar acta</div>
+          </div>
+        </div>
+
+        <div class="dossier-completeness">
+          <span class="dc-label">Expediente completo</span>
+          <div class="dc-bar"><div class="dc-fill" style="width:60%"></div></div>
+          <span class="dc-pct">60%</span>
+          <span class="dc-label" style="color:var(--warn)">Faltan 2 documentos</span>
+        </div>
+
+        <div class="dossier-tabs">
+          <div class="dtab active" onclick="dossierTab('tab-timeline', this)">Cronología <span class="dtab-badge alert">5</span></div>
+          <div class="dtab" onclick="dossierTab('tab-docs', this)">Documentos <span class="dtab-badge">3/5</span></div>
+          <div class="dtab" onclick="dossierTab('tab-checks', this)">Checadas</div>
+          <div class="dtab" onclick="dossierTab('tab-contracts', this)">Contratos</div>
+        </div>
+
+        <!-- Pestaña: Cronología -->
+        <div class="dtab-panel active" id="tab-timeline">
+          <div class="timeline">
+            <div class="tl-event danger">
+              <div class="tl-card">
+                <div class="tl-top"><span class="tl-type">Falta injustificada</span><span class="tl-date">7 may 2026 · 09:47</span></div>
+                <div class="tl-detail">No se presentó a turno. Cuarta falta en el periodo de 30 días. Registrada por Sebastián Ríos desde el taller.</div>
+                <div class="tl-foot">
+                  <span class="tl-chip law">▸ Art. 47-X LFT</span>
+                  <span class="tl-chip sealed">✓ Sellada</span>
+                  <span class="tl-chip">Foto · Notas · Negativa+2 testigos</span>
+                </div>
+              </div>
+            </div>
+            <div class="tl-event warn">
+              <div class="tl-card">
+                <div class="tl-top"><span class="tl-type">Llegada tarde / Retardo</span><span class="tl-date">28 abr 2026 · 09:35</span></div>
+                <div class="tl-detail">Entrada 9:35, hora pactada 9:00. 35 minutos de retardo. Firmó de conformidad.</div>
+                <div class="tl-foot">
+                  <span class="tl-chip law">▸ Art. 47-X LFT</span>
+                  <span class="tl-chip sealed">✓ Sellada</span>
+                  <span class="tl-chip">Foto checador · Firma</span>
+                </div>
+              </div>
+            </div>
+            <div class="tl-event danger">
+              <div class="tl-card">
+                <div class="tl-top"><span class="tl-type">Daño a equipo</span><span class="tl-date">19 abr 2026 · 14:20</span></div>
+                <div class="tl-detail">Operación incorrecta de prensa GTO-52 ocasionó daño al rodillo entintador. Reporte técnico anexo.</div>
+                <div class="tl-foot">
+                  <span class="tl-chip law">▸ Art. 47-VI LFT</span>
+                  <span class="tl-chip sealed">✓ Sellada</span>
+                  <span class="tl-chip">Foto · Video · 1 testigo</span>
+                </div>
+              </div>
+            </div>
+            <div class="tl-event warn">
+              <div class="tl-card">
+                <div class="tl-top"><span class="tl-type">Falta injustificada</span><span class="tl-date">11 abr 2026 · 08:00</span></div>
+                <div class="tl-detail">Ausencia sin aviso ni justificante posterior. Segunda del periodo.</div>
+                <div class="tl-foot">
+                  <span class="tl-chip law">▸ Art. 47-X LFT</span>
+                  <span class="tl-chip sealed">✓ Sellada</span>
+                  <span class="tl-chip">Notas</span>
+                </div>
+              </div>
+            </div>
+            <div class="tl-event">
+              <div class="tl-card">
+                <div class="tl-top"><span class="tl-type">Alta en el sistema</span><span class="tl-date">12 ene 2024 · 10:00</span></div>
+                <div class="tl-detail">Ingreso a DIEZ Creatividad Impresa. Contrato individual de trabajo por tiempo indeterminado.</div>
+                <div class="tl-foot">
+                  <span class="tl-chip sealed">✓ Sellada</span>
+                  <span class="tl-chip">Contrato · INE · CURP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Documentos -->
+        <div class="dtab-panel" id="tab-docs">
+          <div class="docs-intro">Estos documentos alimentan el <strong>autollenado de contratos y actas</strong>. Una vez cargados, la app genera los documentos legales sin volver a capturar datos. Toca cada ranura para simular la carga.</div>
+          <div class="docs-grid">
+            <div class="doc-slot loaded" onclick="toggleDoc(this)">
+              <div class="doc-glyph">IN</div>
+              <div class="doc-info"><div class="doc-name">INE del trabajador</div><div class="doc-hint">Identificación oficial vigente</div></div>
+              <div class="doc-state">Cargado</div>
+            </div>
+            <div class="doc-slot loaded" onclick="toggleDoc(this)">
+              <div class="doc-glyph">CU</div>
+              <div class="doc-info"><div class="doc-name">CURP</div><div class="doc-hint">Clave Única de Registro</div></div>
+              <div class="doc-state">Cargado</div>
+            </div>
+            <div class="doc-slot loaded" onclick="toggleDoc(this)">
+              <div class="doc-glyph">NS</div>
+              <div class="doc-info"><div class="doc-name">Número de Seguro Social</div><div class="doc-hint">Documento IMSS</div></div>
+              <div class="doc-state">Cargado</div>
+            </div>
+            <div class="doc-slot" onclick="toggleDoc(this)">
+              <div class="doc-glyph">CD</div>
+              <div class="doc-info"><div class="doc-name">Comprobante de domicilio</div><div class="doc-hint">No mayor a 3 meses</div></div>
+              <div class="doc-state">Pendiente</div>
+            </div>
+            <div class="doc-slot" onclick="toggleDoc(this)">
+              <div class="doc-glyph">BN</div>
+              <div class="doc-info"><div class="doc-name">INE + CURP del beneficiario</div><div class="doc-hint">Para designación de beneficiario</div></div>
+              <div class="doc-state">Pendiente</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Checadas -->
+        <div class="dtab-panel" id="tab-checks">
+          <div class="check-summary">
+            <div class="check-stat"><div class="cs-val">19</div><div class="cs-lbl">Días laborados / mayo</div></div>
+            <div class="check-stat"><div class="cs-val warn">3</div><div class="cs-lbl">Retardos / mayo</div></div>
+            <div class="check-stat"><div class="cs-val warn">2</div><div class="cs-lbl">Faltas / mayo</div></div>
+          </div>
+          <div class="check-table">
+            <div class="check-row"><span class="cr-date">7 may</span><span class="cr-in">— —</span><span class="cr-out">— —</span><span class="cr-status absent">Falta</span></div>
+            <div class="check-row"><span class="cr-date">6 may</span><span class="cr-in">↓ 09:02</span><span class="cr-out">↑ 18:05</span><span class="cr-status ok">A tiempo</span></div>
+            <div class="check-row"><span class="cr-date">5 may</span><span class="cr-in">↓ 09:31</span><span class="cr-out">↑ 18:00</span><span class="cr-status late">Retardo</span></div>
+            <div class="check-row"><span class="cr-date">2 may</span><span class="cr-in">↓ 08:58</span><span class="cr-out">↑ 18:02</span><span class="cr-status ok">A tiempo</span></div>
+            <div class="check-row"><span class="cr-date">30 abr</span><span class="cr-in">↓ 09:25</span><span class="cr-out">↑ 18:10</span><span class="cr-status late">Retardo</span></div>
+          </div>
+        </div>
+
+        <!-- Pestaña: Contratos -->
+        <div class="dtab-panel" id="tab-contracts">
+          <div class="empty-state">
+            <div class="es-glyph">§</div>
+            <div class="es-text">Aquí vivirán los contratos del trabajador, generados automáticamente desde sus documentos.</div>
+            <button class="gen-btn" onclick="openGenerator()">＋ Generar un contrato</button>
+          </div>
+        </div>
+
+      </div><!-- /view-admin-dossier -->
+
+      <!-- ===== VISTA: GENERADOR DE CONTRATOS ===== -->
+      <div class="admin-view" id="view-admin-generator" style="display:none;">
+        <div class="dossier-back" onclick="adminGoView('view-admin-general')">← Volver a la vista general</div>
+
+        <div class="admin-topbar" style="margin-bottom:20px;">
+          <div>
+            <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+            <div class="admin-title">Generar <em>contrato</em></div>
+          </div>
+        </div>
+
+        <!-- Indicador de pasos -->
+        <div class="gen-steps">
+          <div class="gen-step active" id="gstep-1"><span class="gs-num">1</span> Tipo de contrato</div>
+          <span class="gs-arrow">→</span>
+          <div class="gen-step" id="gstep-2"><span class="gs-num">2</span> Trabajador(es)</div>
+          <span class="gs-arrow">→</span>
+          <div class="gen-step" id="gstep-3"><span class="gs-num">3</span> Revisar y firmar</div>
+        </div>
+
+        <!-- PASO 1: Tipo de contrato -->
+        <div class="gen-panel active" id="gpanel-type">
+          <div class="gen-help-bar">
+            <div class="ghb-text">Elige el <strong>tipo de contrato</strong>. Después podrás seleccionar a uno o varios trabajadores para generarlo en lote.</div>
+          </div>
+          <div class="ctype-grid">
+            <div class="ctype-card" onclick="selectCType(this,'Capacitación inicial')">
+              <div class="ctype-num">i</div>
+              <div class="ctype-name">Capacitación inicial</div>
+              <div class="ctype-rule">Para evaluar si el trabajador adquiere las habilidades del puesto antes de la contratación definitiva.</div>
+              <span class="ctype-dur">30–90 días · hasta 180 (gerencia / técnicos)</span>
+              <div class="ctype-advice-slot">▸ Consejo contextual · pendiente de Emiliano</div>
+            </div>
+            <div class="ctype-card" onclick="selectCType(this,'Periodo de prueba')">
+              <div class="ctype-num">ii</div>
+              <div class="ctype-name">Periodo de prueba</div>
+              <div class="ctype-rule">Para verificar que el trabajador cumple los requisitos y conocimientos del puesto que va a desempeñar.</div>
+              <span class="ctype-dur">30 días · hasta 180 (dirección / gerencia / admin.)</span>
+              <div class="ctype-advice-slot">▸ Consejo contextual · pendiente de Emiliano</div>
+            </div>
+            <div class="ctype-card" onclick="selectCType(this,'Obra o tiempo determinado')">
+              <div class="ctype-num">iii</div>
+              <div class="ctype-name">Obra o tiempo determinado</div>
+              <div class="ctype-rule">Cuando lo exija la naturaleza del trabajo a realizar, por una obra concreta o un periodo definido.</div>
+              <span class="ctype-dur">Según naturaleza del trabajo</span>
+              <div class="ctype-advice-slot">▸ Consejo contextual · pendiente de Emiliano</div>
+            </div>
+            <div class="ctype-card" onclick="selectCType(this,'Por temporada / destajo')">
+              <div class="ctype-num">iv</div>
+              <div class="ctype-name">Por temporada / destajo</div>
+              <div class="ctype-rule">Para labores discontinuas o estacionales, o cuando la retribución se fija por unidad de obra producida.</div>
+              <span class="ctype-dur">Según temporada / unidad de obra</span>
+              <div class="ctype-advice-slot">▸ Consejo contextual · pendiente de Emiliano</div>
+            </div>
+            <div class="ctype-card" onclick="selectCType(this,'Tiempo indeterminado')">
+              <div class="ctype-num">v</div>
+              <div class="ctype-name">Tiempo indeterminado</div>
+              <div class="ctype-rule">Relación laboral permanente, sin fecha de término. El régimen general de contratación.</div>
+              <span class="ctype-dur">Sin fecha de término</span>
+              <div class="ctype-advice-slot">▸ Consejo contextual · pendiente de Emiliano</div>
+            </div>
+          </div>
+          <div class="gen-cta-bar">
+            <div class="gen-cta-count">Tipo seleccionado: <strong id="ctype-selected-label">—</strong></div>
+            <button class="gen-btn" id="gen-to-step2" onclick="genGoStep(2)" disabled>Continuar →</button>
+          </div>
+        </div>
+
+        <!-- PASO 2: Trabajadores (selección múltiple) -->
+        <div class="gen-panel" id="gpanel-emp">
+          <div class="gen-help-bar">
+            <div class="ghb-text">Selecciona a quién aplicarás el contrato de <strong id="emp-step-ctype">—</strong>. Puedes elegir varios a la vez.</div>
+            <div class="gen-selectall" onclick="toggleSelectAll()">Seleccionar todos</div>
+          </div>
+          <div class="gen-emp-list">
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">RM</div>
+              <div><div class="ge-name">Roberto Méndez</div><div class="ge-role">Prensista · Taller</div></div>
+              <div class="ge-docs ready">▸ Datos listos</div>
+            </div>
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">AS</div>
+              <div><div class="ge-name">Ana Sánchez</div><div class="ge-role">Diseñadora · Diseño</div></div>
+              <div class="ge-docs ready">▸ Datos listos</div>
+            </div>
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">JT</div>
+              <div><div class="ge-name">Jorge Torres</div><div class="ge-role">Op. acabados · Taller</div></div>
+              <div class="ge-docs ready">▸ Datos listos</div>
+            </div>
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">LM</div>
+              <div><div class="ge-name">Lucía Mora</div><div class="ge-role">Aux. administrativa · Admin.</div></div>
+              <div class="ge-docs missing">▸ Falta comprob. domicilio</div>
+            </div>
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">MV</div>
+              <div><div class="ge-name">María Vázquez</div><div class="ge-role">Recepción · Admin.</div></div>
+              <div class="ge-docs ready">▸ Datos listos</div>
+            </div>
+            <div class="gen-emp" onclick="toggleEmp(this)">
+              <div class="gen-check">✓</div>
+              <div class="ge-av">PR</div>
+              <div><div class="ge-name">Pedro Ramírez</div><div class="ge-role">Facturación · Admin.</div></div>
+              <div class="ge-docs ready">▸ Datos listos</div>
+            </div>
+          </div>
+          <div class="gen-cta-bar">
+            <div class="gen-cta-count"><strong id="emp-count">0</strong> trabajador(es) seleccionado(s)</div>
+            <div style="display:flex; gap:10px;">
+              <button class="gen-btn ghost" onclick="genGoStep(1)">← Atrás</button>
+              <button class="gen-btn" id="gen-to-step3" onclick="genGoStep(3)" disabled>Generar y revisar →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 3: Vista previa + firmas -->
+        <div class="gen-panel" id="gpanel-review">
+          <div class="gen-help-bar">
+            <div class="ghb-text">Vista previa del contrato <strong id="review-ctype">—</strong> para <strong id="review-emp">—</strong>. <span id="review-lote-note"></span></div>
+          </div>
+
+          <div class="cp-legend">
+            <strong>Demo:</strong> los campos resaltados como <span class="fill-demo">este</span> se llenan solos con los datos del expediente del trabajador. La redacción que ves es de muestra — tu machote real reemplazará este texto en el MVP, conservando las mismas etiquetas de autollenado.
+          </div>
+
+          <!-- Documento -->
+          <div class="contract-paper">
+            <h2>Contrato Individual de Trabajo</h2>
+            <div class="cp-sub" id="cp-type-label">Por tiempo indeterminado</div>
+
+            <p>En la ciudad de <span class="fill">Colima, Colima</span>, a <span class="fill">7 de mayo de 2026</span>, comparecen por una parte <span class="fill">DIEZ Creatividad Impresa, S.A. de C.V.</span>, representada por <span class="fill">Emiliano Salazar Valdivia</span>, en su carácter de patrón (en adelante "EL PATRÓN"); y por la otra parte <span class="fill" id="cp-worker-name">Roberto Méndez Olvera</span>, por su propio derecho (en adelante "EL TRABAJADOR"), quienes manifiestan su voluntad de celebrar el presente contrato al tenor de las siguientes declaraciones y cláusulas.</p>
+
+            <div class="cp-clause-title">Declaraciones del trabajador</div>
+            <p>Declara llamarse como ha quedado escrito, con CURP <span class="fill" id="cp-curp">MEOR______HCLXXX09</span>, Número de Seguro Social <span class="fill" id="cp-nss">__-__-__-____-_</span>, con domicilio en <span class="fill">domicilio registrado en su expediente</span>, y tener la aptitud y conocimientos para desempeñar el puesto de <span class="fill" id="cp-puesto">Prensista</span>.</p>
+
+            <div class="cp-clause-title">Primera — Objeto</div>
+            <p>EL TRABAJADOR se obliga a prestar sus servicios personales subordinados a EL PATRÓN, desempeñando el puesto de <span class="fill">Prensista</span> en el área de <span class="fill">Taller</span>, en el domicilio de la empresa ubicado en <span class="fill">Colima, Colima</span>.</p>
+
+            <div class="cp-clause-title">Segunda — Duración</div>
+            <p id="cp-duration-clause">El presente contrato se celebra por <span class="fill">tiempo indeterminado</span>, iniciando la relación laboral el día <span class="fill">7 de mayo de 2026</span>.</p>
+
+            <div class="cp-clause-title">Tercera — Jornada</div>
+            <p>EL TRABAJADOR desempeñará una jornada de <span class="fill">40 horas semanales</span>, conforme a la reforma a la Ley Federal del Trabajo, distribuida según el horario establecido por EL PATRÓN, registrándose la entrada y salida conforme al Art. 132 fracción XXXIV de la LFT.</p>
+
+            <div class="cp-clause-title">Cuarta — Salario</div>
+            <p>EL PATRÓN pagará a EL TRABAJADOR un salario de <span class="fill">$_______ </span> (cantidad con letra), pagadero de forma <span class="fill">semanal</span> en el domicilio de la empresa.</p>
+
+            <p style="margin-top:24px; font-size:12px; color:rgba(10,14,26,0.55);">Leído el presente contrato y enteradas las partes de su contenido y alcance legal, lo firman de conformidad ante dos testigos.</p>
+          </div>
+
+          <!-- Firmas: partes + 2 testigos -->
+          <div class="sign-grid">
+            <div class="sign-box" onclick="signBox(this,'firma')">
+              <div class="sb-role">El Trabajador</div>
+              <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+              <div class="sb-name" id="sb-worker">Roberto Méndez Olvera</div>
+              <div class="sb-status">Pendiente</div>
+            </div>
+            <div class="sign-box" onclick="signBox(this,'firma')">
+              <div class="sb-role">El Patrón</div>
+              <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+              <div class="sb-name">DIEZ Creatividad Impresa</div>
+              <div class="sb-status">Pendiente</div>
+            </div>
+            <div class="sign-box" onclick="signBox(this,'firma')">
+              <div class="sb-role">Testigo 1</div>
+              <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+              <div class="sb-name">Sebastián Ríos</div>
+              <div class="sb-status">Pendiente</div>
+            </div>
+            <div class="sign-box" onclick="signBox(this,'firma')">
+              <div class="sb-role">Testigo 2</div>
+              <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+              <div class="sb-name">Lucía Mora</div>
+              <div class="sb-status">Pendiente</div>
+            </div>
+          </div>
+
+          <div class="gen-cta-bar" style="justify-content:center; max-width:720px; margin-left:auto; margin-right:auto;">
+            <button class="gen-btn ghost" onclick="genGoStep(2)">← Atrás</button>
+            <button class="gen-btn" id="gen-seal" onclick="genSeal()" disabled>Sellar y guardar en expediente</button>
+          </div>
+        </div>
+
+        <!-- PASO 4: Éxito -->
+        <div class="gen-panel" id="gpanel-success">
+          <div class="gen-success">
+            <div class="gsx-seal">✓ Sellado · Inmutable</div>
+            <h2>El contrato <em>quedó blindado</em></h2>
+            <div class="gsx-detail" id="gsx-detail">Contrato por tiempo indeterminado generado y firmado para Roberto Méndez Olvera.</div>
+            <div class="gsx-list">
+              <div class="gsx-item"><span class="gi-check">✓</span> Autollenado desde el expediente del trabajador</div>
+              <div class="gsx-item"><span class="gi-check">✓</span> Firmado por trabajador, patrón y 2 testigos</div>
+              <div class="gsx-item"><span class="gi-check">✓</span> Sello de tiempo y hash SHA-256</div>
+              <div class="gsx-item"><span class="gi-check">✓</span> Guardado en la pestaña Contratos del expediente</div>
+            </div>
+            <button class="gen-btn" onclick="openGenerator()">Generar otro contrato</button>
+            <button class="gen-btn ghost" style="margin-left:10px;" onclick="adminGoView('view-admin-general')">Volver al inicio</button>
+          </div>
+        </div>
+
+      </div><!-- /view-admin-generator -->
+
+      <!-- ===== VISTA: GENERADOR DE ACTAS ADMINISTRATIVAS ===== -->
+      <div class="admin-view" id="view-admin-acta" style="display:none;">
+        <div class="dossier-back" onclick="adminGoView('view-admin-general')">← Volver a la vista general</div>
+
+        <div class="admin-topbar" style="margin-bottom:20px;">
+          <div>
+            <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+            <div class="admin-title">Levantar <em>acta administrativa</em></div>
+          </div>
+        </div>
+
+        <div class="acta-layout">
+          <!-- Formulario único -->
+          <div class="acta-form">
+            <h3>Hechos</h3>
+            <div class="af-intro">Captura el tiempo, modo y lugar exactos. La app redacta la narrativa formal del acta conforme escribes, a la derecha.</div>
+
+            <div class="field">
+              <label>Trabajador <span class="req">*</span></label>
+              <select id="acta-worker" oninput="renderActa()">
+                <option value="Roberto Méndez Olvera">Roberto Méndez Olvera — Prensista</option>
+                <option value="Ana Sánchez">Ana Sánchez — Diseñadora</option>
+                <option value="Jorge Torres">Jorge Torres — Op. acabados</option>
+                <option value="Lucía Mora">Lucía Mora — Aux. administrativa</option>
+                <option value="María Vázquez">María Vázquez — Recepción</option>
+                <option value="Pedro Ramírez">Pedro Ramírez — Facturación</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Tipo de falta <span class="req">*</span></label>
+              <select id="acta-fault" oninput="renderActa()">
+                <option value="" data-art="">Selecciona…</option>
+                <option value="falta injustificada" data-art="Art. 47 fracción X de la LFT">Falta injustificada</option>
+                <option value="retardo" data-art="Art. 47 fracción X de la LFT">Llegada tarde / Retardo</option>
+                <option value="insubordinación" data-art="Art. 47 fracción XI de la LFT">Insubordinación</option>
+                <option value="daño a equipo" data-art="Art. 47 fracción VI de la LFT">Daño a equipo o instalaciones</option>
+                <option value="riña" data-art="Art. 47 fracción II de la LFT">Riña / Violencia</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Fecha de los hechos <span class="req">*</span></label>
+                <input type="text" id="acta-date" placeholder="7 de mayo de 2026" oninput="renderActa()" />
+              </div>
+              <div class="field">
+                <label>Hora exacta <span class="req">*</span></label>
+                <input type="text" id="acta-time" placeholder="09:35 horas" oninput="renderActa()" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Lugar exacto <span class="req">*</span></label>
+              <input type="text" id="acta-place" placeholder="Área de taller, planta baja" oninput="renderActa()" />
+            </div>
+
+            <div class="field">
+              <label>Modo — ¿cómo ocurrieron los hechos? <span class="req">*</span></label>
+              <textarea id="acta-mode" placeholder="Describe con detalle: qué hizo, qué se le indicó, qué incumplió…" oninput="renderActa()"></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Testigo 1</label>
+                <input type="text" id="acta-w1" placeholder="Nombre del testigo" value="Sebastián Ríos" oninput="renderActa()" />
+              </div>
+              <div class="field">
+                <label>Testigo 2</label>
+                <input type="text" id="acta-w2" placeholder="Nombre del testigo" value="Lucía Mora" oninput="renderActa()" />
+              </div>
+            </div>
+
+            <button class="gen-btn" style="width:100%; margin-top:8px;" onclick="goActaSign()">Generar acta y pasar a firma →</button>
+          </div>
+
+          <!-- Vista previa en vivo -->
+          <div class="acta-preview">
+            <div class="acta-paper" id="acta-paper">
+              <div class="acta-empty-hint" id="acta-empty">Completa los campos y el acta aparecerá aquí, redactada en lenguaje formal.</div>
+              <div id="acta-body" style="display:none;">
+                <h2>Acta Administrativa Laboral</h2>
+                <div class="ap-sub" id="ap-folio">DIEZ · ACT-20260507-0001</div>
+
+                <p>En las instalaciones de <span class="live">DIEZ Creatividad Impresa, S.A. de C.V.</span>, ubicadas en la ciudad de Colima, Colima, siendo las <span class="live" id="ap-time">[hora]</span> del día <span class="live" id="ap-date">[fecha]</span>, se levanta la presente acta administrativa con el objeto de hacer constar los hechos que a continuación se describen, imputables al trabajador <span class="live" id="ap-worker">[trabajador]</span>.</p>
+
+                <div class="ap-clause">Primero — De los hechos</div>
+                <p id="ap-narrative">[La narrativa de los hechos se redactará aquí.]</p>
+
+                <div class="ap-clause">Segundo — Del fundamento</div>
+                <p id="ap-law">Los hechos descritos podrían constituir causal de rescisión de la relación laboral sin responsabilidad para el patrón, conforme al <span class="live">[fundamento legal]</span>.</p>
+
+                <div class="ap-clause">Tercero — De la intervención del trabajador</div>
+                <p>Acto seguido, se concede el uso de la voz al trabajador para que manifieste lo que a su derecho convenga respecto de los hechos que se le imputan:</p>
+                <div class="manifest-box" id="ap-manifest">_______________________________________________ <br>(Espacio reservado para que el trabajador manifieste lo que a su derecho convenga.)</div>
+
+                <div class="ap-clause">Cuarto — Del cierre</div>
+                <p>No habiendo más que hacer constar, se da por concluida la presente acta, firmando al margen y al calce quienes en ella intervinieron, ante la presencia de dos testigos: <span class="live" id="ap-witnesses">[testigos]</span>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /view-admin-acta -->
+
+      <!-- ===== VISTA: FIRMA DEL ACTA ===== -->
+      <div class="admin-view" id="view-admin-acta-sign" style="display:none;">
+        <div class="dossier-back" onclick="adminGoView('view-admin-acta')">← Volver a editar el acta</div>
+        <div class="admin-topbar" style="margin-bottom:20px;">
+          <div>
+            <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+            <div class="admin-title">Firma del <em>acta</em></div>
+          </div>
+        </div>
+
+        <div class="gen-help-bar" style="max-width:720px; margin:0 auto 16px;">
+          <div class="ghb-text">Recaba la firma de quienes intervinieron. Si el trabajador se niega, registra la negativa con los dos testigos: tiene el mismo valor procesal.</div>
+        </div>
+
+        <div class="sign-grid">
+          <div class="sign-box" onclick="signActaBox(this)">
+            <div class="sb-role">El Trabajador</div>
+            <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+            <div class="sb-name" id="acta-sign-worker">Roberto Méndez Olvera</div>
+            <div class="sb-status">Pendiente</div>
+          </div>
+          <div class="sign-box" onclick="signActaBox(this)">
+            <div class="sb-role">Por el Patrón</div>
+            <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+            <div class="sb-name">DIEZ Creatividad Impresa</div>
+            <div class="sb-status">Pendiente</div>
+          </div>
+          <div class="sign-box" onclick="signActaBox(this)">
+            <div class="sb-role">Testigo 1</div>
+            <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+            <div class="sb-name" id="acta-sign-w1">Sebastián Ríos</div>
+            <div class="sb-status">Pendiente</div>
+          </div>
+          <div class="sign-box" onclick="signActaBox(this)">
+            <div class="sb-role">Testigo 2</div>
+            <div class="sb-line"><span class="sb-prompt">Toca para firmar</span></div>
+            <div class="sb-name" id="acta-sign-w2">Lucía Mora</div>
+            <div class="sb-status">Pendiente</div>
+          </div>
+        </div>
+
+        <div class="gen-cta-bar" style="justify-content:center; max-width:720px; margin:0 auto;">
+          <button class="gen-btn ghost" onclick="refuseActaSign()">El trabajador se negó · constancia</button>
+          <button class="gen-btn" id="acta-seal" onclick="sealActa()" disabled>Sellar y guardar en expediente</button>
+        </div>
+
+        <div class="legal-note">
+          <strong>Demo:</strong> el sellado mostrará un hash y sello de tiempo simulados. La validez legal plena (NOM-151 con Prestador de Servicios de Certificación autorizado) se integra en la Etapa 3.
+        </div>
+      </div><!-- /view-admin-acta-sign -->
+
+      <!-- ===== VISTA: ÉXITO DEL ACTA ===== -->
+      <div class="admin-view" id="view-admin-acta-success" style="display:none;">
+        <div class="gen-success">
+          <div class="gsx-seal">✓ Sellado · Inmutable</div>
+          <h2>El acta <em>guardó la verdad</em></h2>
+          <div class="gsx-detail" id="acta-success-detail">Acta administrativa generada, firmada y archivada en el expediente del trabajador.</div>
+          <div class="gsx-list">
+            <div class="gsx-item"><span class="gi-check">✓</span> Narrativa formal redactada automáticamente</div>
+            <div class="gsx-item"><span class="gi-check">✓</span> Apartado de manifestación del trabajador incluido</div>
+            <div class="gsx-item"><span class="gi-check">✓</span> Firmas de partes y 2 testigos recabadas</div>
+            <div class="gsx-item"><span class="gi-check">✓</span> Sello de tiempo y hash · agregada a la cronología</div>
+          </div>
+          <button class="gen-btn" onclick="openActa()">Levantar otra acta</button>
+          <button class="gen-btn ghost" style="margin-left:10px;" onclick="openDossier()">Ver expediente</button>
+        </div>
+      </div><!-- /view-admin-acta-success -->
+
+      <!-- ===== VISTA: EXPORTACIÓN FORENSE ===== -->
+      <div class="admin-view" id="view-admin-export" style="display:none;">
+        <div class="dossier-back" onclick="adminGoView('view-admin-general')">← Volver a la vista general</div>
+        <div class="admin-topbar" style="margin-bottom:20px;">
+          <div>
+            <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+            <div class="admin-title">Exportar <em>expediente forense</em></div>
+          </div>
+        </div>
+
+        <!-- Configuración -->
+        <div class="admin-view-sub" id="export-config">
+          <div class="export-hero">
+            <h3>El día de la <em>demanda</em></h3>
+            <p>Cuando llega un emplazamiento, el abogado descarga aquí el expediente consolidado del trabajador: todos los eventos en orden cronológico, con sus hashes verificables, contratos y actas, listo para presentar como prueba.</p>
+          </div>
+
+          <div class="gen-help-bar">
+            <div class="ghb-text">Expediente de <strong>Roberto Méndez Olvera</strong>. Elige qué incluir:</div>
+          </div>
+
+          <div class="export-options">
+            <div class="export-opt on" onclick="this.classList.toggle('on')">
+              <div class="eo-toggle"></div>
+              <div class="eo-text"><div class="eo-name">Cronología de eventos</div><div class="eo-hint">Retardos, faltas, daños — en orden</div></div>
+              <div class="eo-count">5 eventos</div>
+            </div>
+            <div class="export-opt on" onclick="this.classList.toggle('on')">
+              <div class="eo-toggle"></div>
+              <div class="eo-text"><div class="eo-name">Actas administrativas</div><div class="eo-hint">Con manifestación del trabajador y firmas</div></div>
+              <div class="eo-count">2 actas</div>
+            </div>
+            <div class="export-opt on" onclick="this.classList.toggle('on')">
+              <div class="eo-toggle"></div>
+              <div class="eo-text"><div class="eo-name">Contratos</div><div class="eo-hint">Contrato vigente y anteriores</div></div>
+              <div class="eo-count">1 contrato</div>
+            </div>
+            <div class="export-opt on" onclick="this.classList.toggle('on')">
+              <div class="eo-toggle"></div>
+              <div class="eo-text"><div class="eo-name">Registro de checadas</div><div class="eo-hint">Entradas y salidas del periodo</div></div>
+              <div class="eo-count">mayo 2026</div>
+            </div>
+            <div class="export-opt on" onclick="this.classList.toggle('on')">
+              <div class="eo-toggle"></div>
+              <div class="eo-text"><div class="eo-name">Cadena de custodia y hashes</div><div class="eo-hint">Quién registró, desde qué dispositivo, cuándo</div></div>
+              <div class="eo-count">verificable</div>
+            </div>
+          </div>
+
+          <div style="text-align:center;">
+            <button class="gen-btn" onclick="buildForensic()">Generar paquete forense →</button>
+          </div>
+        </div>
+
+        <!-- Documento generado -->
+        <div class="admin-view-sub" id="export-doc" style="display:none;">
+          <div class="legal-note">
+            <strong>Demo:</strong> este es el aspecto del documento forense. En el producto real se descargará como PDF con hashes verificables y, en Etapa 3, constancia NOM-151.
+          </div>
+
+          <div class="forensic-doc">
+            <div class="fd-header">
+              <div class="fd-brand">AQUILES<span>Patrón · Expediente forense</span></div>
+              <div class="fd-meta">
+                Folio: EXP-DIEZ-RM-20260529<br>
+                Generado: <span id="fd-gen-date">29 may 2026</span><br>
+                Empresa: DIEZ Creatividad Impresa
+              </div>
+            </div>
+
+            <h1>Expediente Laboral Consolidado</h1>
+            <div class="fd-subject">Trabajador: Roberto Méndez Olvera · Prensista · Taller · Alta: 12 ene 2024</div>
+
+            <div class="fd-section-title">I. Cronología de eventos documentados</div>
+
+            <div class="fd-event">
+              <div class="fde-top"><span class="fde-type">Falta injustificada</span><span class="fde-date">7 may 2026 · 09:47</span></div>
+              <div class="fde-detail">No se presentó a turno. Cuarta falta en periodo de 30 días. Registrada por Sebastián Ríos.</div>
+              <div class="fde-meta"><span class="law">▸ Art. 47-X LFT</span><span>Evidencia: foto, notas, negativa + 2 testigos</span><span>19.244°N 103.725°W</span></div>
+              <div class="fd-hash">SHA-256: a3f8b2c91d7e4f6a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a</div>
+            </div>
+            <div class="fd-event">
+              <div class="fde-top"><span class="fde-type">Llegada tarde / Retardo</span><span class="fde-date">28 abr 2026 · 09:35</span></div>
+              <div class="fde-detail">Entrada 9:35, hora pactada 9:00. Firmó de conformidad.</div>
+              <div class="fde-meta"><span class="law">▸ Art. 47-X LFT</span><span>Evidencia: foto checador, firma</span></div>
+              <div class="fd-hash">SHA-256: b7c2d8e1f4a9c0b3d6e9f2a5b8c1d4e7f0a3b6c9d2e5f8a1b4c7d0e3f6a9b2c5</div>
+            </div>
+            <div class="fd-event">
+              <div class="fde-top"><span class="fde-type">Daño a equipo</span><span class="fde-date">19 abr 2026 · 14:20</span></div>
+              <div class="fde-detail">Operación incorrecta de prensa GTO-52 dañó el rodillo entintador.</div>
+              <div class="fde-meta"><span class="law">▸ Art. 47-VI LFT</span><span>Evidencia: foto, video, 1 testigo</span></div>
+              <div class="fd-hash">SHA-256: c1d4e7f0a3b6c9d2e5f8a1b4c7d0e3f6a9b2c5d8e1f4a7b0c3d6e9f2a5b8c1d4</div>
+            </div>
+
+            <div class="fd-section-title">II. Actas administrativas</div>
+            <div class="fd-event">
+              <div class="fde-top"><span class="fde-type">Acta por falta injustificada</span><span class="fde-date">7 may 2026</span></div>
+              <div class="fde-detail">Acta con manifestación del trabajador y firma de 2 testigos. Constancia de negativa a firmar del trabajador.</div>
+              <div class="fde-meta"><span class="law">▸ Art. 47-X LFT</span><span>Firmas: patrón + 2 testigos</span></div>
+            </div>
+
+            <div class="fd-section-title">III. Contrato vigente</div>
+            <div class="fd-event">
+              <div class="fde-top"><span class="fde-type">Contrato por tiempo indeterminado</span><span class="fde-date">12 ene 2024</span></div>
+              <div class="fde-detail">Firmado por trabajador, patrón y 2 testigos. Jornada conforme Art. 132-XXXIV LFT.</div>
+            </div>
+
+            <div class="fd-footer">
+              Documento generado por AQUILES Patrón · Una herramienta de AQUILES Blindaje Corporativo &amp; Laboral · Cadena de custodia verificable mediante hashes SHA-256<br>
+              Este expediente fue conformado en tiempo real, evento por evento, conforme ocurrieron los hechos.
+            </div>
+          </div>
+
+          <div class="export-actions">
+            <button class="gen-btn" onclick="window.print()">Descargar / Imprimir PDF</button>
+            <button class="gen-btn ghost" onclick="document.getElementById('export-doc').style.display='none'; document.getElementById('export-config').style.display='block';">← Volver a configurar</button>
+          </div>
+        </div>
+      </div><!-- /view-admin-export -->
+
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PANTALLA: CHECADOR (tablet de recepción)                     -->
+<!-- ============================================================ -->
+<div id="screen-checador" class="app-screen">
+  <div class="nav-back-root" onclick="showScreen('screen-admin'); resetChecador();">← Admin</div>
+
+  <div class="checador">
+    <div class="brand-line" style="justify-content:center; max-width:300px; margin:0 auto 32px;">
+      <span class="brand-mark">AQUILES</span>
+      <span class="brand-divider"></span>
+      <span class="brand-tag">Checador</span>
+    </div>
+
+    <!-- Paso A: seleccionar empleado -->
+    <div id="checador-select">
+      <div class="checador-clock" id="checador-clock">09:02:11</div>
+      <div class="checador-date" id="checador-date">jueves 7 de mayo, 2026</div>
+      <div class="checador-prompt">Toca tu <em>nombre</em> para checar</div>
+      <div class="checador-emp-grid">
+        <div class="checador-emp" onclick="doCheck('Roberto Méndez','RM','entrada','09:02','retardo')">
+          <div class="ce-av">RM</div><div class="ce-name">Roberto M.</div>
+        </div>
+        <div class="checador-emp" onclick="doCheck('Ana Sánchez','AS','entrada','08:55','ok')">
+          <div class="ce-av">AS</div><div class="ce-name">Ana S.</div>
+        </div>
+        <div class="checador-emp" onclick="doCheck('Jorge Torres','JT','entrada','08:58','ok')">
+          <div class="ce-av">JT</div><div class="ce-name">Jorge T.</div>
+        </div>
+        <div class="checador-emp" onclick="doCheck('Lucía Mora','LM','entrada','08:50','ok')">
+          <div class="ce-av">LM</div><div class="ce-name">Lucía M.</div>
+        </div>
+        <div class="checador-emp" onclick="doCheck('María Vázquez','MV','entrada','08:48','ok')">
+          <div class="ce-av">MV</div><div class="ce-name">María V.</div>
+        </div>
+        <div class="checador-emp" onclick="doCheck('Pedro Ramírez','PR','entrada','08:53','ok')">
+          <div class="ce-av">PR</div><div class="ce-name">Pedro R.</div>
+        </div>
+      </div>
+      <div class="checador-meta">
+        <span>▸ Foto automática</span>
+        <span>▸ Geolocalización</span>
+        <span>▸ Validación facial</span>
+      </div>
+    </div>
+
+    <!-- Paso B: confirmación de checada -->
+    <div id="checador-done" style="display:none;">
+      <div class="checador-feedback">
+        <div class="cf-check">✓</div>
+        <div class="cf-msg" id="cf-msg">Entrada registrada</div>
+        <div class="cf-detail" id="cf-detail">Roberto Méndez · 09:02</div>
+      </div>
+      <div class="checador-meta" id="cf-extra">
+        <span>✓ Foto capturada</span>
+        <span>✓ 19.244°N 103.725°W</span>
+        <span>✓ Sellado</span>
+      </div>
+      <div id="cf-late-warn" style="display:none; margin-top:20px; padding:14px 18px; border:1px solid var(--warn); border-radius:8px; background:rgba(214,137,16,0.08); font-size:12px; color:rgba(244,241,234,0.8); line-height:1.5;">
+        <strong style="color:var(--warn)">Aviso al supervisor:</strong> entrada después de la hora pactada (9:00). Se registró como <strong>retardo</strong> y quedó disponible para el expediente.
+      </div>
+      <div style="margin-top:24px;">
+        <button class="btn-primary" style="background:var(--accent); color:var(--ink); max-width:280px; margin:0 auto;" onclick="resetChecador()">Listo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner de instalación PWA -->
+<div class="install-hint" id="install-hint">
+  <span>Instala AQUILES Patrón en tu dispositivo</span>
+  <button onclick="doInstall()">Instalar</button>
+  <button class="ih-close" onclick="document.getElementById('install-hint').classList.remove('show')">✕</button>
+</div>
+
+<script>
+/* ============ NAVEGACIÓN RAÍZ (entre roles) ============ */
+function showScreen(screenId) {
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ============ FLUJO DEL SUPERVISOR (tu lógica original) ============ */
+let selectedFaultType = null;
+let evidenceCount = 0;
+let signatureStatus = null;
+
+function goTo(viewId) {
+  document.querySelectorAll('#screen-supervisor .view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+}
+
+function selectFault(el, name) {
+  document.querySelectorAll('.fault-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFaultType = name;
+  document.getElementById('btn-step1').disabled = false;
+  document.getElementById('receipt-fault').textContent = name;
+}
+
+function captureEvidence(el) {
+  if (el.classList.contains('captured')) return;
+  el.classList.add('captured');
+  el.querySelector('.evidence-status').textContent = 'Capturado';
+  evidenceCount++;
+
+  if (evidenceCount >= 1) {
+    document.getElementById('btn-step2').disabled = false;
+  }
+
+  const labels = [];
+  document.querySelectorAll('.evidence-row.captured .evidence-label').forEach(l => labels.push(l.textContent.split(' ')[0]));
+  if (document.getElementById('note-input').value.length > 0) labels.push('Notas');
+  document.getElementById('receipt-evidence').textContent = labels.join(' · ') || 'Notas';
+}
+
+document.getElementById('note-input').addEventListener('input', (e) => {
+  if (e.target.value.length > 0) {
+    document.getElementById('btn-step2').disabled = false;
+    const labels = [];
+    document.querySelectorAll('.evidence-row.captured .evidence-label').forEach(l => labels.push(l.textContent.split(' ')[0]));
+    labels.push('Notas');
+    document.getElementById('receipt-evidence').textContent = labels.join(' · ');
+  }
+});
+
+function signDocument() {
+  const sigArea = document.getElementById('sig-area');
+  sigArea.classList.add('signed');
+  sigArea.querySelector('.sig-label').textContent = 'Firma recabada · 9:49:33';
+  signatureStatus = 'firmada';
+  document.getElementById('btn-step3').disabled = false;
+  document.getElementById('receipt-signature').textContent = 'Recabada';
+}
+
+function refuseSign() {
+  const sigArea = document.getElementById('sig-area');
+  sigArea.classList.add('signed');
+  sigArea.querySelector('.sig-glyph').textContent = '✗';
+  sigArea.querySelector('.sig-label').textContent = 'Negativa · 2 testigos · 9:49:33';
+  signatureStatus = 'negativa';
+  document.getElementById('btn-step3').disabled = false;
+  document.getElementById('receipt-signature').textContent = 'Negativa + testigos';
+}
+
+function resetFlow() {
+  selectedFaultType = null;
+  evidenceCount = 0;
+  signatureStatus = null;
+
+  document.querySelectorAll('.fault-option').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.evidence-row').forEach(o => {
+    o.classList.remove('captured');
+    o.querySelector('.evidence-status').textContent = 'Tocar';
+  });
+  document.getElementById('note-input').value = '';
+  const sigArea = document.getElementById('sig-area');
+  sigArea.classList.remove('signed');
+  sigArea.querySelector('.sig-glyph').textContent = 'RM';
+  sigArea.querySelector('.sig-label').textContent = 'Toca para simular firma';
+
+  document.getElementById('btn-step1').disabled = true;
+  document.getElementById('btn-step2').disabled = true;
+  document.getElementById('btn-step3').disabled = true;
+
+  goTo('view-dashboard');
+}
+
+/* Reloj del flujo supervisor (igual que tu original) */
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = now.getMinutes().toString().padStart(2, '0');
+  const t = `${h}:${m}`;
+  ['time-1','time-2','time-3','time-4','time-5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t;
+  });
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+/* Reloj en vivo del panel admin (solo para ambiente) */
+function updateAdminClock() {
+  const el = document.getElementById('admin-clock');
+  if (!el) return;
+  const now = new Date();
+  const hh = now.getHours().toString().padStart(2, '0');
+  const mm = now.getMinutes().toString().padStart(2, '0');
+  const ss = now.getSeconds().toString().padStart(2, '0');
+  el.textContent = `${hh}:${mm}:${ss}`;
+}
+updateAdminClock();
+setInterval(updateAdminClock, 1000);
+
+/* ============ NAVEGACIÓN INTERNA DEL ADMIN ============ */
+function adminGoView(viewId, navEl) {
+  document.querySelectorAll('.admin-view').forEach(v => {
+    v.classList.remove('active');
+    v.style.display = 'none';
+  });
+  const target = document.getElementById(viewId);
+  target.classList.add('active');
+  target.style.display = 'block';
+  // marcar item de menú activo si vino de la barra lateral
+  if (navEl) {
+    document.querySelectorAll('.admin-sidebar .nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  const main = document.querySelector('.admin-main');
+  if (main) main.scrollTo(0, 0);
+}
+
+function openDossier() {
+  showScreen('screen-admin');
+  adminGoView('view-admin-dossier');
+  // resetear a la primera pestaña
+  dossierTabReset();
+}
+
+/* ============ PESTAÑAS DEL EXPEDIENTE ============ */
+function dossierTab(panelId, tabEl) {
+  document.querySelectorAll('#view-admin-dossier .dtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#view-admin-dossier .dtab-panel').forEach(p => p.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+function dossierTabReset() {
+  const tabs = document.querySelectorAll('#view-admin-dossier .dtab');
+  const panels = document.querySelectorAll('#view-admin-dossier .dtab-panel');
+  tabs.forEach((t,i) => t.classList.toggle('active', i === 0));
+  panels.forEach((p,i) => p.classList.toggle('active', i === 0));
+}
+
+/* ============ DOCUMENTOS (simulación de carga) ============ */
+function toggleDoc(el) {
+  const loaded = el.classList.toggle('loaded');
+  el.querySelector('.doc-state').textContent = loaded ? 'Cargado' : 'Pendiente';
+  updateCompleteness();
+}
+function updateCompleteness() {
+  const slots = document.querySelectorAll('#tab-docs .doc-slot');
+  const loaded = document.querySelectorAll('#tab-docs .doc-slot.loaded').length;
+  const total = slots.length;
+  const pct = total ? Math.round((loaded / total) * 100) : 0;
+  const fill = document.querySelector('.dc-fill');
+  const pctEl = document.querySelector('.dc-pct');
+  const badge = document.querySelector('.dtab .dtab-badge'); // se actualiza abajo por id
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  // actualizar badge de documentos (segundo dtab)
+  const docBadge = document.querySelectorAll('#view-admin-dossier .dtab')[1].querySelector('.dtab-badge');
+  if (docBadge) docBadge.textContent = `${loaded}/${total}`;
+  // actualizar etiqueta "faltan N documentos"
+  const faltanEl = document.querySelectorAll('.dossier-completeness .dc-label')[1];
+  if (faltanEl) {
+    const faltan = total - loaded;
+    if (faltan === 0) { faltanEl.textContent = 'Expediente completo'; faltanEl.style.color = 'var(--safe)'; }
+    else { faltanEl.textContent = `Faltan ${faltan} documento${faltan>1?'s':''}`; faltanEl.style.color = 'var(--warn)'; }
+  }
+}
+
+/* ============ CHECADOR (tablet de recepción) ============ */
+function updateChecadorClock() {
+  const el = document.getElementById('checador-clock');
+  if (!el) return;
+  const now = new Date();
+  const hh = now.getHours().toString().padStart(2, '0');
+  const mm = now.getMinutes().toString().padStart(2, '0');
+  const ss = now.getSeconds().toString().padStart(2, '0');
+  el.textContent = `${hh}:${mm}:${ss}`;
+}
+updateChecadorClock();
+setInterval(updateChecadorClock, 1000);
+
+function doCheck(name, initials, tipo, hora, estado) {
+  document.getElementById('checador-select').style.display = 'none';
+  document.getElementById('checador-done').style.display = 'block';
+  document.getElementById('cf-msg').textContent = 'Entrada registrada';
+  document.getElementById('cf-detail').textContent = `${name} · ${hora}`;
+  const lateWarn = document.getElementById('cf-late-warn');
+  lateWarn.style.display = (estado === 'retardo') ? 'block' : 'none';
+}
+function resetChecador() {
+  const sel = document.getElementById('checador-select');
+  const done = document.getElementById('checador-done');
+  if (sel) sel.style.display = 'block';
+  if (done) done.style.display = 'none';
+}
+
+/* ============ GENERADOR DE CONTRATOS ============ */
+let genCType = null;
+let genCTypeSubtitle = {
+  'Capacitación inicial': 'Para capacitación inicial',
+  'Periodo de prueba': 'A prueba',
+  'Obra o tiempo determinado': 'Por obra o tiempo determinado',
+  'Por temporada / destajo': 'Por temporada o a destajo',
+  'Tiempo indeterminado': 'Por tiempo indeterminado'
+};
+
+function openGenerator() {
+  showScreen('screen-admin');
+  adminGoView('view-admin-generator');
+  genReset();
+}
+
+function genReset() {
+  genCType = null;
+  document.querySelectorAll('.ctype-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('ctype-selected-label').textContent = '—';
+  document.getElementById('gen-to-step2').disabled = true;
+  document.querySelectorAll('.gen-emp').forEach(e => e.classList.remove('checked'));
+  updateEmpCount();
+  document.querySelectorAll('.sign-box').forEach(b => {
+    b.classList.remove('signed');
+    b.querySelector('.sb-line').innerHTML = '<span class="sb-prompt">Toca para firmar</span>';
+    b.querySelector('.sb-status').textContent = 'Pendiente';
+  });
+  document.getElementById('gen-seal').disabled = true;
+  genGoStep(1);
+}
+
+function selectCType(el, name) {
+  document.querySelectorAll('.ctype-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  genCType = name;
+  document.getElementById('ctype-selected-label').textContent = name;
+  document.getElementById('gen-to-step2').disabled = false;
+}
+
+function genGoStep(n) {
+  ['type','emp','review','success'].forEach((p,i) => {
+    document.getElementById('gpanel-' + p).classList.toggle('active', false);
+  });
+  const map = {1:'type', 2:'emp', 3:'review', 4:'success'};
+  document.getElementById('gpanel-' + map[n]).classList.add('active');
+
+  // indicador de pasos (solo 1-3 visibles; 4 = éxito mantiene 3 como done)
+  [1,2,3].forEach(s => {
+    const el = document.getElementById('gstep-' + s);
+    el.classList.remove('active','done');
+    if (n === 4) { el.classList.add('done'); }
+    else if (s < n) el.classList.add('done');
+    else if (s === n) el.classList.add('active');
+  });
+
+  if (n === 2) {
+    document.getElementById('emp-step-ctype').textContent = genCType || '—';
+  }
+  if (n === 3) {
+    prepareReview();
+  }
+  const main = document.querySelector('.admin-main');
+  if (main) main.scrollTo(0, 0);
+}
+
+function toggleEmp(el) {
+  el.classList.toggle('checked');
+  updateEmpCount();
+}
+function toggleSelectAll() {
+  const emps = document.querySelectorAll('.gen-emp');
+  const allChecked = [...emps].every(e => e.classList.contains('checked'));
+  emps.forEach(e => e.classList.toggle('checked', !allChecked));
+  updateEmpCount();
+}
+function updateEmpCount() {
+  const n = document.querySelectorAll('.gen-emp.checked').length;
+  const cEl = document.getElementById('emp-count');
+  if (cEl) cEl.textContent = n;
+  const btn = document.getElementById('gen-to-step3');
+  if (btn) btn.disabled = (n === 0);
+}
+
+function prepareReview() {
+  const checked = [...document.querySelectorAll('.gen-emp.checked')];
+  const names = checked.map(e => e.querySelector('.ge-name').textContent);
+  const first = names[0] || 'Roberto Méndez Olvera';
+
+  document.getElementById('review-ctype').textContent = genCType || '—';
+  document.getElementById('review-emp').textContent = first;
+  document.getElementById('cp-type-label').textContent = genCTypeSubtitle[genCType] || 'Por tiempo indeterminado';
+  document.getElementById('cp-worker-name').textContent = first;
+  document.getElementById('sb-worker').textContent = first;
+
+  // nota de lote
+  const note = document.getElementById('review-lote-note');
+  if (names.length > 1) {
+    note.innerHTML = `Se generarán <strong>${names.length} contratos</strong> en lote; abajo se muestra el de ${first} como ejemplo.`;
+  } else {
+    note.textContent = '';
+  }
+
+  // ajustar cláusula de duración según tipo
+  const durClause = document.getElementById('cp-duration-clause');
+  const dur = {
+    'Capacitación inicial': 'El presente contrato se celebra <span class="fill">para capacitación inicial</span>, con una duración de <span class="fill">90 días</span>, iniciando el <span class="fill">7 de mayo de 2026</span>, conforme al Art. 39-A de la LFT.',
+    'Periodo de prueba': 'El presente contrato se celebra <span class="fill">a prueba</span>, con una duración de <span class="fill">30 días</span>, iniciando el <span class="fill">7 de mayo de 2026</span>, conforme al Art. 39-A de la LFT.',
+    'Obra o tiempo determinado': 'El presente contrato se celebra <span class="fill">por tiempo determinado</span>, por así exigirlo la naturaleza del trabajo, concluyendo el <span class="fill">[fecha de término]</span>, conforme al Art. 37 de la LFT.',
+    'Por temporada / destajo': 'El presente contrato se celebra <span class="fill">por temporada</span>, para labores discontinuas, conforme a los Arts. 39-F y 83 de la LFT.',
+    'Tiempo indeterminado': 'El presente contrato se celebra por <span class="fill">tiempo indeterminado</span>, iniciando la relación laboral el día <span class="fill">7 de mayo de 2026</span>.'
+  };
+  durClause.innerHTML = dur[genCType] || dur['Tiempo indeterminado'];
+
+  // resetear firmas
+  document.querySelectorAll('.sign-box').forEach(b => {
+    b.classList.remove('signed');
+    b.querySelector('.sb-line').innerHTML = '<span class="sb-prompt">Toca para firmar</span>';
+    b.querySelector('.sb-status').textContent = 'Pendiente';
+  });
+  document.getElementById('gen-seal').disabled = true;
+}
+
+function signBox(el) {
+  if (el.classList.contains('signed')) return;
+  el.classList.add('signed');
+  const initials = el.querySelector('.sb-name').textContent.split(' ').slice(0,2).map(w => w[0]).join('');
+  el.querySelector('.sb-line').innerHTML = '<span class="sb-sig">' + initials + '</span>';
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  el.querySelector('.sb-status').textContent = 'Firmado · ' + t;
+
+  // habilitar sellado cuando las 4 firmas estén
+  const total = document.querySelectorAll('.sign-box').length;
+  const signed = document.querySelectorAll('.sign-box.signed').length;
+  document.getElementById('gen-seal').disabled = (signed < total);
+}
+
+function genSeal() {
+  const checked = [...document.querySelectorAll('.gen-emp.checked')];
+  const names = checked.map(e => e.querySelector('.ge-name').textContent);
+  const first = names[0] || 'Roberto Méndez Olvera';
+  const detail = document.getElementById('gsx-detail');
+  if (names.length > 1) {
+    detail.textContent = `${names.length} contratos de tipo "${genCType}" generados y firmados en lote. Cada uno quedó guardado en el expediente de su trabajador.`;
+  } else {
+    detail.textContent = `Contrato de tipo "${genCType}" generado y firmado para ${first}.`;
+  }
+  genGoStep(4);
+}
+
+/* ============ GENERADOR DE ACTAS ADMINISTRATIVAS ============ */
+function openActa() {
+  showScreen('screen-admin');
+  adminGoView('view-admin-acta');
+  renderActa();
+}
+
+function renderActa() {
+  const worker = document.getElementById('acta-worker').value;
+  const faultSel = document.getElementById('acta-fault');
+  const fault = faultSel.value;
+  const art = faultSel.options[faultSel.selectedIndex]?.getAttribute('data-art') || '';
+  const date = document.getElementById('acta-date').value.trim();
+  const time = document.getElementById('acta-time').value.trim();
+  const place = document.getElementById('acta-place').value.trim();
+  const mode = document.getElementById('acta-mode').value.trim();
+  const w1 = document.getElementById('acta-w1').value.trim();
+  const w2 = document.getElementById('acta-w2').value.trim();
+
+  const hasContent = fault || date || time || place || mode;
+  document.getElementById('acta-empty').style.display = hasContent ? 'none' : 'block';
+  document.getElementById('acta-body').style.display = hasContent ? 'block' : 'none';
+  if (!hasContent) return;
+
+  document.getElementById('ap-worker').textContent = worker;
+  document.getElementById('ap-time').textContent = time ? (time.includes('hora') ? time : time + ' horas') : '[hora]';
+  document.getElementById('ap-date').textContent = date || '[fecha]';
+
+  // Narrativa formal autogenerada
+  let narrative = '';
+  if (fault || mode || place) {
+    const lugar = place ? `en ${place}` : 'en las instalaciones de la empresa';
+    const cuando = (date || time) ? `el día ${date || '[fecha]'}${time ? ', siendo las ' + (time.includes('hora') ? time : time + ' horas') : ''}` : '';
+    const faltaTxt = fault ? `incurrió en ${fault}` : 'incurrió en una falta a sus obligaciones laborales';
+    narrative = `Se hace constar que el trabajador ${worker} ${faltaTxt}, hecho ocurrido ${lugar}${cuando ? ', ' + cuando : ''}. `;
+    if (mode) narrative += `De manera específica: ${mode}`;
+    if (mode && !/[.!?]$/.test(mode)) narrative += '.';
+  } else {
+    narrative = '[La narrativa de los hechos se redactará conforme completes los campos.]';
+  }
+  const narrEl = document.getElementById('ap-narrative');
+  narrEl.textContent = narrative;
+  flash(narrEl);
+
+  // Fundamento
+  const lawEl = document.getElementById('ap-law');
+  lawEl.innerHTML = `Los hechos descritos podrían constituir causal de rescisión de la relación laboral sin responsabilidad para el patrón, conforme al <span class="live">${art || '[fundamento legal]'}</span>.`;
+
+  // Testigos
+  const wits = [w1, w2].filter(Boolean);
+  document.getElementById('ap-witnesses').textContent = wits.length ? wits.join(' y ') : '[testigos]';
+}
+
+function flash(el) {
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 300);
+}
+
+function goActaSign() {
+  const worker = document.getElementById('acta-worker').value;
+  const w1 = document.getElementById('acta-w1').value.trim() || 'Testigo 1';
+  const w2 = document.getElementById('acta-w2').value.trim() || 'Testigo 2';
+  document.getElementById('acta-sign-worker').textContent = worker;
+  document.getElementById('acta-sign-w1').textContent = w1;
+  document.getElementById('acta-sign-w2').textContent = w2;
+  // reset firmas del acta
+  document.querySelectorAll('#view-admin-acta-sign .sign-box').forEach(b => {
+    b.classList.remove('signed');
+    b.querySelector('.sb-line').innerHTML = '<span class="sb-prompt">Toca para firmar</span>';
+    b.querySelector('.sb-status').textContent = 'Pendiente';
+  });
+  document.getElementById('acta-seal').disabled = true;
+  adminGoView('view-admin-acta-sign');
+}
+
+function signActaBox(el) {
+  if (el.classList.contains('signed')) return;
+  el.classList.add('signed');
+  const initials = el.querySelector('.sb-name').textContent.split(' ').slice(0,2).map(w => w[0]).join('');
+  el.querySelector('.sb-line').innerHTML = '<span class="sb-sig">' + initials + '</span>';
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  el.querySelector('.sb-status').textContent = 'Firmado · ' + t;
+  checkActaSeal();
+}
+
+function refuseActaSign() {
+  // El trabajador se niega: su casilla se marca como negativa, basta con patrón + 2 testigos
+  const boxes = document.querySelectorAll('#view-admin-acta-sign .sign-box');
+  const workerBox = boxes[0];
+  workerBox.classList.add('signed');
+  workerBox.querySelector('.sb-line').innerHTML = '<span class="sb-sig" style="color:var(--warn)">✗</span>';
+  workerBox.querySelector('.sb-status').textContent = 'Negativa · 2 testigos';
+  checkActaSeal();
+}
+
+function checkActaSeal() {
+  const total = document.querySelectorAll('#view-admin-acta-sign .sign-box').length;
+  const signed = document.querySelectorAll('#view-admin-acta-sign .sign-box.signed').length;
+  document.getElementById('acta-seal').disabled = (signed < total);
+}
+
+function sealActa() {
+  const worker = document.getElementById('acta-worker').value;
+  const faultSel = document.getElementById('acta-fault');
+  const fault = faultSel.value || 'falta';
+  document.getElementById('acta-success-detail').textContent =
+    `Acta administrativa por ${fault} de ${worker}, generada, firmada y archivada en su expediente.`;
+  adminGoView('view-admin-acta-success');
+}
+
+/* ============ EXPORTACIÓN FORENSE ============ */
+function openExport() {
+  showScreen('screen-admin');
+  adminGoView('view-admin-export');
+  document.getElementById('export-doc').style.display = 'none';
+  document.getElementById('export-config').style.display = 'block';
+}
+function buildForensic() {
+  document.getElementById('export-config').style.display = 'none';
+  document.getElementById('export-doc').style.display = 'block';
+  const main = document.querySelector('.admin-main');
+  if (main) main.scrollTo(0, 0);
+}
+
+/* ============ PWA (instalación) ============ */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-hint').classList.add('show');
+});
+function doInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(() => {
+      deferredPrompt = null;
+      document.getElementById('install-hint').classList.remove('show');
+    });
+  } else {
+    alert('Para instalar: en tu navegador móvil, abre el menú (⋮ o el ícono de compartir) y elige "Agregar a pantalla de inicio".');
+  }
+}
+
+/* ============ PWA: manifest inline (un solo archivo) ============ */
+(function setupPWA() {
+  // Ícono SVG dorado sobre fondo ink, embebido como data URI
+  const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#0a0e1a"/><text x="50%" y="54%" font-family="Georgia,serif" font-size="300" font-weight="900" fill="#c8a951" text-anchor="middle" dominant-baseline="middle">A</text></svg>';
+  const iconUri = 'data:image/svg+xml;base64,' + btoa(iconSvg);
+
+  const manifest = {
+    name: 'AQUILES Patrón',
+    short_name: 'AQUILES Patrón',
+    description: 'Cada falta documentada en el momento. Cada juicio ganado años después.',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#0a0e1a',
+    theme_color: '#0a0e1a',
+    icons: [
+      { src: iconUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const manifestUrl = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = manifestUrl;
+  document.head.appendChild(link);
+
+  // ícono apple-touch
+  const appleIcon = document.createElement('link');
+  appleIcon.rel = 'apple-touch-icon';
+  appleIcon.href = iconUri;
+  document.head.appendChild(appleIcon);
+})();
+</script>
+
+</body>
+</html>
