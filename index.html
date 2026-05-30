@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="AQUILES Patrón" />
+<!-- Ícono para "Agregar a pantalla de inicio" en iPhone (iOS solo acepta PNG, no SVG) -->
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
 <title>AQUILES Patrón — Demo</title>
 <meta name="description" content="AQUILES Patrón captura, fecha y blinda cada evento laboral relevante en el momento que ocurre, para construir evidencia con valor probatorio en juicios laborales. Una herramienta de AQUILES Blindaje Corporativo & Laboral." />
 <link rel="canonical" href="https://aquilespatron.netlify.app/" />
@@ -378,7 +381,7 @@ body::before {
 }
 
 .phone {
-  width: 380px;
+  width: min(380px, calc(100vw - 28px));
   height: 780px;
   background: #000;
   border-radius: 48px;
@@ -3874,20 +3877,23 @@ function doInstall() {
 
 /* ============ PWA: manifest inline (un solo archivo) ============ */
 (function setupPWA() {
-  // Ícono SVG dorado sobre fondo ink, embebido como data URI
-  const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#0a0e1a"/><text x="50%" y="54%" font-family="Georgia,serif" font-size="300" font-weight="900" fill="#c8a951" text-anchor="middle" dominant-baseline="middle">A</text></svg>';
-  const iconUri = 'data:image/svg+xml;base64,' + btoa(iconSvg);
-
+  // Íconos PNG reales de marca (Android e iOS los renderizan de forma confiable;
+  // el SVG no servía para el ícono de iPhone). El apple-touch-icon va estático en el <head>.
+  // El manifest se sirve como Blob, así que resolvemos las rutas a URL absolutas
+  // contra la dirección actual para que funcionen en cualquier dominio o preview.
+  const abs = (path) => new URL(path, location.href).href;
+  const icon512 = abs('icon-512.png');
   const manifest = {
     name: 'AQUILES Patrón',
     short_name: 'AQUILES Patrón',
     description: 'Cada falta documentada en el momento. Cada juicio ganado años después.',
-    start_url: '.',
+    start_url: abs('.'),
     display: 'standalone',
     background_color: '#0a0e1a',
     theme_color: '#0a0e1a',
     icons: [
-      { src: iconUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
     ]
   };
   const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
@@ -3896,12 +3902,6 @@ function doInstall() {
   link.rel = 'manifest';
   link.href = manifestUrl;
   document.head.appendChild(link);
-
-  // ícono apple-touch
-  const appleIcon = document.createElement('link');
-  appleIcon.rel = 'apple-touch-icon';
-  appleIcon.href = iconUri;
-  document.head.appendChild(appleIcon);
 })();
 </script>
 
