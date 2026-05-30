@@ -1,0 +1,25 @@
+# Configuración de despliegue de AQUILES Patrón en Netlify.
+# Este archivo le dice a Netlify cómo publicar el sitio.
+# Como la app es un solo HTML estático (sin compilación), la config es mínima.
+
+[build]
+  # No hay paso de compilación: el sitio se sirve tal cual.
+  command = ""
+  # Carpeta que se publica = la raíz del repositorio (donde vive index.html).
+  publish = "."
+
+# --- Encabezados HTTP ---
+# El index.html NO debe cachearse de forma agresiva: así, cuando subas un
+# cambio, los usuarios ven la versión nueva de inmediato y no una vieja guardada.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Encabezados de seguridad básicos para todo el sitio.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
