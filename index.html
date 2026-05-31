@@ -2573,7 +2573,7 @@ body::before {
       <div class="admin-view active" id="view-admin-general">
       <div class="admin-topbar">
         <div>
-          <div class="admin-company">DIEZ Creatividad Impresa · Colima</div>
+          <div class="admin-company" id="admin-company-name">DIEZ Creatividad Impresa · Colima</div>
           <div class="admin-title">Vista <em>general</em></div>
         </div>
         <div class="admin-date">
@@ -2612,7 +2612,8 @@ body::before {
           <h3>Empleados</h3>
           <span class="hint">Semáforo de riesgo legal</span>
         </div>
-        <div class="emp-table">
+        <!-- Tabla DEMO (visible sin sesión, para ventas) -->
+        <div class="emp-table" id="emp-table-demo">
           <div class="emp-row" onclick="openDossier()">
             <div class="e-avatar">RM<span class="risk-dot danger"></span></div>
             <div><div class="e-name">Roberto Méndez</div><div class="e-role">Prensista</div></div>
@@ -2663,7 +2664,11 @@ body::before {
             <span class="risk-tag safe">Bajo</span>
           </div>
         </div>
-        <div class="soon-banner">
+
+        <!-- Trabajadores REALES de tu empresa (visible con sesión, en blanco al inicio) -->
+        <div id="emp-real" style="display:none;"></div>
+
+        <div class="soon-banner" id="emp-demo-banner">
           <strong>Toca a Roberto Méndez</strong> para abrir su expediente individual: cronología de eventos, documentos (INE, CURP, NSS), contratos y checadas, todo en un solo lugar. <strong>Contratos y actas</strong> se activan en las Sesiones 3 y 4.
         </div>
       </div>
