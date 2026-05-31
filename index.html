@@ -2672,7 +2672,7 @@ body::before {
         </div>
 
         <div class="dossier-tabs">
-          <div class="dtab active" onclick="dossierTab('tab-timeline', this)">Cronología <span class="dtab-badge alert">5</span></div>
+          <div class="dtab active" onclick="dossierTab('tab-timeline', this)">Cronología <span class="dtab-badge alert" id="badge-cronologia">5</span></div>
           <div class="dtab" onclick="dossierTab('tab-docs', this)">Documentos <span class="dtab-badge">3/5</span></div>
           <div class="dtab" onclick="dossierTab('tab-checks', this)">Checadas</div>
           <div class="dtab" onclick="dossierTab('tab-contracts', this)">Contratos</div>
@@ -2680,7 +2680,7 @@ body::before {
 
         <!-- Pestaña: Cronología -->
         <div class="dtab-panel active" id="tab-timeline">
-          <div class="timeline">
+          <div class="timeline" id="timeline-list">
             <div class="tl-event danger">
               <div class="tl-card">
                 <div class="tl-top"><span class="tl-type">Falta injustificada</span><span class="tl-date">7 may 2026 · 09:47</span></div>

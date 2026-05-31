@@ -95,3 +95,82 @@ async function sellarEvento() {
     if (elNube) { elNube.textContent = 'Hash real generado · (modo sin conexión)'; elNube.className = 'receipt-cloud local'; }
   }
 }
+
+/* ============================================================
+   6. Mostrar los eventos REALES dentro de la app (panel admin)
+   Lee la tabla 'events' de Supabase y los pinta arriba de la
+   cronología del expediente, marcados como reales.
+   ============================================================ */
+
+const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fechaCorta(iso) {
+  const d = new Date(iso);
+  const hh = d.getHours().toString().padStart(2, '0');
+  const mm = d.getMinutes().toString().padStart(2, '0');
+  return `${d.getDate()} ${MESES_ES[d.getMonth()]} ${d.getFullYear()} · ${hh}:${mm}`;
+}
+
+function escapaHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+async function cargarEventosReales() {
+  if (!sb) return;
+  const lista = document.getElementById('timeline-list');
+  if (!lista) return;
+
+  let datos = [];
+  try {
+    const { data, error } = await sb
+      .from('events')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    datos = data || [];
+  } catch (e) {
+    console.warn('No se pudieron leer los eventos reales.', e);
+    return;
+  }
+
+  // Quitar los reales que se hayan pintado antes (evita duplicados al reabrir)
+  lista.querySelectorAll('[data-real="1"]').forEach(n => n.remove());
+
+  // Pintar los reales arriba (los más nuevos primero)
+  for (let i = datos.length - 1; i >= 0; i--) {
+    const ev = datos[i];
+    const firma = ev.signature_status === 'negativa'
+      ? 'Negativa + testigos' : 'Firma recabada';
+    const card = document.createElement('div');
+    card.className = 'tl-event danger';
+    card.setAttribute('data-real', '1');
+    card.innerHTML = `
+      <div class="tl-card">
+        <div class="tl-top">
+          <span class="tl-type">${escapaHtml(ev.fault_type)}</span>
+          <span class="tl-date">${fechaCorta(ev.created_at)}</span>
+        </div>
+        <div class="tl-detail">Registro en vivo desde la app. Evidencia: ${escapaHtml(ev.evidence)}. ${firma}.</div>
+        <div class="tl-foot">
+          <span class="tl-chip law">▸ ${escapaHtml(ev.legal_basis)}</span>
+          <span class="tl-chip sealed">✓ Sellada (real)</span>
+          <span class="tl-chip">hash ${escapaHtml((ev.hash || '').slice(0, 12))}…</span>
+        </div>
+      </div>`;
+    lista.prepend(card);
+  }
+
+  // Actualizar el contador de la pestaña Cronología
+  const badge = document.getElementById('badge-cronologia');
+  if (badge) badge.textContent = String(5 + datos.length);
+}
+
+// Cargar los eventos reales cada vez que se abre un expediente.
+window.addEventListener('DOMContentLoaded', () => {
+  const orig = window.openDossier;
+  window.openDossier = function () {
+    if (typeof orig === 'function') orig.apply(this, arguments);
+    cargarEventosReales();
+  };
+});
