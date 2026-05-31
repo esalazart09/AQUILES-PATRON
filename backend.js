@@ -93,6 +93,9 @@ async function sellarEvento() {
       console.warn('No se pudo guardar en la nube; el hash real se mostró igual.', e);
       if (elNube) { elNube.textContent = 'Hash real generado · (nube no disponible)'; elNube.className = 'receipt-cloud local'; }
     }
+  } else if (sesion && !miEmpresa) {
+    // Hay sesión pero el espacio de empresa no está listo (falta preparar la base).
+    if (elNube) { elNube.textContent = 'Hash real generado · tu espacio no está listo (falta preparar la base de datos en Supabase).'; elNube.className = 'receipt-cloud local'; }
   } else {
     if (elNube) { elNube.textContent = 'Hash real generado · (modo demo · inicia sesión para guardar)'; elNube.className = 'receipt-cloud local'; }
   }
@@ -327,9 +330,19 @@ async function registrarSesion() {
 }
 
 async function salirSesion() {
-  if (sb) { try { await sb.auth.signOut(); } catch (e) { /* noop */ } }
+  if (sb) {
+    try { await sb.auth.signOut(); }
+    catch (e) { /* aunque falle, limpiamos el estado local abajo */ }
+  }
   sesion = null;
+  miEmpresa = null;
+  miEmpresaNombre = '';
+  empresaError = null;
   cerrarAcceso();
+  // Refrescar la UI de inmediato (no dependemos del aviso de Supabase).
+  pintarBotonAuth();
+  aplicarNombreEmpresa();
+  aplicarVistaEmpleados();
 }
 
 /* ============================================================
@@ -340,20 +353,22 @@ async function salirSesion() {
 
 let miEmpresa = null;        // id de la empresa del usuario
 let miEmpresaNombre = '';    // nombre para mostrar
+let empresaError = null;     // mensaje si no se pudo preparar la empresa
 let _aprovisionando = null;  // evita crear dos empresas a la vez
 
 function ensureCompany() {
   if (_aprovisionando) return _aprovisionando;
   _aprovisionando = (async () => {
-    miEmpresa = null; miEmpresaNombre = '';
+    miEmpresa = null; miEmpresaNombre = ''; empresaError = null;
     if (!sb || !sesion) return;
     try {
       // ¿Ya tiene perfil/empresa?
-      const prof = (await sb.from('profiles')
-        .select('company_id').eq('id', sesion.user.id).maybeSingle()).data;
+      const prof = await sb.from('profiles')
+        .select('company_id').eq('id', sesion.user.id).maybeSingle();
+      if (prof.error) throw prof.error;
 
-      if (prof && prof.company_id) {
-        miEmpresa = prof.company_id;
+      if (prof.data && prof.data.company_id) {
+        miEmpresa = prof.data.company_id;
         const c = await sb.from('companies').select('name').eq('id', miEmpresa).maybeSingle();
         miEmpresaNombre = (c.data && c.data.name) || 'Mi empresa';
       } else {
@@ -363,10 +378,13 @@ function ensureCompany() {
         if (ins.error) throw ins.error;
         miEmpresa = ins.data.id;
         miEmpresaNombre = ins.data.name;
-        await sb.from('profiles').insert([{ id: sesion.user.id, company_id: miEmpresa, role: 'admin' }]);
+        const p = await sb.from('profiles').insert([{ id: sesion.user.id, company_id: miEmpresa, role: 'admin' }]);
+        if (p.error) throw p.error;
       }
     } catch (e) {
       console.warn('No se pudo preparar la empresa.', e);
+      empresaError = (e && (e.message || e.hint)) || 'No se pudo preparar tu empresa.';
+      miEmpresa = null;
     }
   })().finally(() => { _aprovisionando = null; });
   return _aprovisionando;
@@ -482,6 +500,8 @@ async function guardarTrabajador() {
 
 async function cargarTrabajadores() {
   if (!sb || !sesion) return;
+  // Si el espacio de empresa no está listo, avisar con claridad.
+  if (!miEmpresa) { renderEmpresaNoLista(); return; }
   try {
     const { data, error } = await sb.from('employees').select('*')
       .order('created_at', { ascending: true });
@@ -489,7 +509,20 @@ async function cargarTrabajadores() {
     renderEmpleadosReales(data || []);
   } catch (e) {
     console.warn('No se pudieron leer los trabajadores.', e);
+    renderEmpresaNoLista();
   }
+}
+
+// Aviso visible cuando falta preparar la base de datos en Supabase.
+function renderEmpresaNoLista() {
+  const cont = document.getElementById('emp-real');
+  if (!cont) return;
+  cont.innerHTML = `
+    <div class="soon-banner" style="border-left:3px solid #c0392b;">
+      <strong>Tu espacio aún no está listo.</strong> Falta preparar la base de datos en Supabase
+      (correr los archivos <code>03_multitenant.sql</code> y <code>04_employee_fields.sql</code>).
+      ${empresaError ? `<br><span style="opacity:.7;font-size:11px;">Detalle técnico: ${escapaHtml(empresaError)}</span>` : ''}
+    </div>`;
 }
 
 // Alterna entre la vista DEMO (sin sesión) y la REAL (con sesión).
