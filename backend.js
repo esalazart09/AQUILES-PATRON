@@ -205,10 +205,13 @@ function pintarBotonAuth() {
   }
 }
 
-// Dibuja el contenido de la tarjeta según haya sesión o no.
+let authModo = 'login'; // 'login' o 'signup'
+
+// Dibuja el contenido de la tarjeta según haya sesión y el modo.
 function renderAuthCard() {
   const card = document.getElementById('auth-card');
   if (!card) return;
+
   if (sesion) {
     card.innerHTML = `
       <h3>Sesión activa</h3>
@@ -218,26 +221,46 @@ function renderAuthCard() {
         <button id="auth-cancel" onclick="cerrarAcceso()">Cerrar</button>
         <button id="auth-submit" onclick="salirSesion()">Cerrar sesión</button>
       </div>`;
-  } else {
-    card.innerHTML = `
-      <h3>Iniciar sesión</h3>
-      <p class="sub">Acceso para personal autorizado. Guardar datos reales requiere sesión.</p>
-      <label for="auth-email">Correo</label>
-      <input id="auth-email" type="email" autocomplete="username" placeholder="tu@correo.com" />
-      <label for="auth-pass">Contraseña</label>
-      <input id="auth-pass" type="password" autocomplete="current-password" placeholder="••••••••" />
-      <div id="auth-msg"></div>
-      <div id="auth-actions">
-        <button id="auth-cancel" onclick="cerrarAcceso()">Cancelar</button>
-        <button id="auth-submit" onclick="entrarSesion()">Entrar</button>
-      </div>`;
-    // Permitir Enter para enviar
-    const pass = document.getElementById('auth-pass');
-    if (pass) pass.addEventListener('keydown', e => { if (e.key === 'Enter') entrarSesion(); });
+    return;
   }
+
+  const esRegistro = authModo === 'signup';
+  card.innerHTML = `
+    <h3>${esRegistro ? 'Crear cuenta' : 'Iniciar sesión'}</h3>
+    <p class="sub">${esRegistro
+      ? 'Crea tu cuenta con correo y contraseña. Tu empresa se crea sola, en blanco, lista para llenar.'
+      : 'Acceso para personal autorizado. Guardar datos reales requiere sesión.'}</p>
+    <label for="auth-email">Correo</label>
+    <input id="auth-email" type="email" autocomplete="username" placeholder="tu@correo.com" />
+    <label for="auth-pass">Contraseña</label>
+    <input id="auth-pass" type="password" autocomplete="${esRegistro ? 'new-password' : 'current-password'}" placeholder="${esRegistro ? 'Mínimo 6 caracteres' : '••••••••'}" />
+    <div id="auth-msg"></div>
+    <div id="auth-actions">
+      <button id="auth-cancel" onclick="cerrarAcceso()">Cancelar</button>
+      <button id="auth-submit" onclick="${esRegistro ? 'registrarSesion()' : 'entrarSesion()'}">${esRegistro ? 'Crear cuenta' : 'Entrar'}</button>
+    </div>
+    <p style="text-align:center;font-size:12px;margin:16px 0 0;color:rgba(10,14,26,0.6);">
+      ${esRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
+      <a href="#" onclick="cambiarModoAuth(event)" style="color:var(--accent-deep,#0a0e1a);font-weight:600;text-decoration:none;">
+        ${esRegistro ? 'Inicia sesión' : 'Regístrate'}
+      </a>
+    </p>`;
+
+  // Permitir Enter para enviar
+  const pass = document.getElementById('auth-pass');
+  if (pass) pass.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { esRegistro ? registrarSesion() : entrarSesion(); }
+  });
+}
+
+function cambiarModoAuth(e) {
+  if (e) e.preventDefault();
+  authModo = (authModo === 'login') ? 'signup' : 'login';
+  renderAuthCard();
 }
 
 function abrirAcceso() {
+  authModo = 'login';
   renderAuthCard();
   const ov = document.getElementById('auth-overlay');
   if (ov) ov.classList.add('show');
@@ -268,6 +291,38 @@ async function entrarSesion() {
   } catch (e) {
     console.warn('Login fallido', e);
     msgAuth('Correo o contraseña incorrectos.', 'err');
+  }
+}
+
+async function registrarSesion() {
+  if (!sb) { msgAuth('La conexión no está disponible.', 'err'); return; }
+  const email = (document.getElementById('auth-email')?.value || '').trim();
+  const pass = document.getElementById('auth-pass')?.value || '';
+  if (!email || !pass) { msgAuth('Escribe tu correo y una contraseña.', 'err'); return; }
+  if (pass.length < 6) { msgAuth('La contraseña debe tener al menos 6 caracteres.', 'err'); return; }
+  msgAuth('Creando tu cuenta…', '');
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password: pass });
+    if (error) throw error;
+    if (data.session) {
+      // Cuenta activa de inmediato (confirmación por correo desactivada)
+      sesion = data.session;
+      msgAuth('✓ Cuenta creada. ¡Bienvenido!', 'ok');
+      setTimeout(cerrarAcceso, 800);
+    } else {
+      // Confirmación por correo activada: hay que confirmar antes de entrar
+      msgAuth('✓ Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.', 'ok');
+    }
+  } catch (e) {
+    console.warn('Registro fallido', e);
+    const t = (e && e.message) || '';
+    if (/already|registered|exists/i.test(t)) {
+      msgAuth('Ese correo ya tiene cuenta. Inicia sesión.', 'err');
+    } else if (/password/i.test(t)) {
+      msgAuth('La contraseña no cumple los requisitos (mínimo 6 caracteres).', 'err');
+    } else {
+      msgAuth('No se pudo crear la cuenta. Revisa el correo e intenta de nuevo.', 'err');
+    }
   }
 }
 
