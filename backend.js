@@ -331,14 +331,26 @@ function iniciales(nombre) {
   return (nombre || '?').trim().split(/\s+/).map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
 }
 
+function pagoTexto(emp) {
+  if (emp.daily_pay == null && !emp.pay_period) return '—';
+  const monto = emp.daily_pay != null
+    ? '$' + Number(emp.daily_pay).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + '/día'
+    : '';
+  const periodo = emp.pay_period ? (monto ? ' · ' + emp.pay_period : emp.pay_period) : '';
+  return monto + periodo;
+}
+
 function filaTrabajador(emp) {
+  const actividades = emp.activities
+    ? (emp.activities.length > 60 ? emp.activities.slice(0, 60) + '…' : emp.activities)
+    : 'sin actividades capturadas';
   return `
     <div class="emp-row">
       <div class="e-avatar">${escapaHtml(iniciales(emp.full_name))}<span class="risk-dot safe"></span></div>
       <div><div class="e-name">${escapaHtml(emp.full_name)}</div><div class="e-role">${escapaHtml(emp.position || '—')}</div></div>
-      <div class="col-dept">${escapaHtml(emp.department || '—')}</div>
-      <div class="col-events">sin observaciones</div>
-      <span class="risk-tag safe">Bajo</span>
+      <div class="col-dept">${escapaHtml(pagoTexto(emp))}</div>
+      <div class="col-events">${escapaHtml(actividades)}</div>
+      <span class="risk-tag safe">Activo</span>
     </div>`;
 }
 
@@ -355,7 +367,19 @@ function renderEmpleadosReales(lista) {
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <input id="nt-nombre" placeholder="Nombre completo" style="${estiloInput}flex:2;min-width:160px;" />
         <input id="nt-puesto" placeholder="Puesto" style="${estiloInput}flex:1;min-width:120px;" />
-        <input id="nt-depto" placeholder="Área / depto." style="${estiloInput}flex:1;min-width:120px;" />
+      </div>
+      <textarea id="nt-actividades" placeholder="Actividades a realizar (las funciones del puesto)" rows="2" style="${estiloInput}width:100%;box-sizing:border-box;margin-top:10px;resize:vertical;"></textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:150px;">
+          <span style="font-size:14px;color:rgba(10,14,26,0.55);">$</span>
+          <input id="nt-pago" type="number" min="0" step="0.01" placeholder="Pago diario" style="${estiloInput}flex:1;" />
+        </div>
+        <select id="nt-periodo" style="${estiloInput}flex:1;min-width:150px;background:#fff;">
+          <option value="">Periodo de pago…</option>
+          <option value="Diario">Pago diario</option>
+          <option value="Semanal">Pago semanal</option>
+          <option value="Quincenal">Pago quincenal</option>
+        </select>
       </div>
       <div id="nt-msg" style="font-size:12px;color:#c0392b;min-height:14px;margin-top:8px;"></div>
       <button class="gen-btn" onclick="guardarTrabajador()">Guardar trabajador</button>
@@ -377,13 +401,21 @@ async function guardarTrabajador() {
   if (!sb || !sesion || !miEmpresa) return;
   const nombre = (document.getElementById('nt-nombre')?.value || '').trim();
   const puesto = (document.getElementById('nt-puesto')?.value || '').trim();
-  const depto = (document.getElementById('nt-depto')?.value || '').trim();
+  const actividades = (document.getElementById('nt-actividades')?.value || '').trim();
+  const pagoTxt = (document.getElementById('nt-pago')?.value || '').trim();
+  const periodo = document.getElementById('nt-periodo')?.value || '';
+  const pago = pagoTxt === '' ? null : Number(pagoTxt);
   const msg = document.getElementById('nt-msg');
   if (!nombre) { if (msg) msg.textContent = 'Escribe al menos el nombre.'; return; }
   if (msg) msg.textContent = 'Guardando…';
   try {
     const { error } = await sb.from('employees').insert([{
-      company_id: miEmpresa, full_name: nombre, position: puesto || null, department: depto || null,
+      company_id: miEmpresa,
+      full_name: nombre,
+      position: puesto || null,
+      activities: actividades || null,
+      daily_pay: pago,
+      pay_period: periodo || null,
     }]);
     if (error) throw error;
     await cargarTrabajadores(); // re-render (limpia el formulario)
