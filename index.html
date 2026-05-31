@@ -1016,6 +1016,16 @@ body::before {
   font-weight: 700;
 }
 
+.receipt-cloud {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  min-height: 12px;
+}
+.receipt-cloud.ok { color: #1b8a5a; }
+.receipt-cloud.local { color: rgba(10, 14, 26, 0.45); }
+
 .receipt-footer {
   text-align: center;
   margin-top: 20px;
@@ -2083,6 +2093,8 @@ body::before {
 }
 .install-hint .ih-close { background: transparent; color: rgba(244,241,234,0.5); padding: 8px; }
 </style>
+<!-- Backend real (Etapa 2): cliente de Supabase + lógica de guardado -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -2390,7 +2402,7 @@ body::before {
             </div>
 
             <div class="bottom-action">
-              <button class="btn-primary" id="btn-step3" onclick="goTo('view-success')" disabled>Sellar y guardar</button>
+              <button class="btn-primary" id="btn-step3" onclick="sellarEvento()" disabled>Sellar y guardar</button>
             </div>
           </div>
 
@@ -2410,7 +2422,7 @@ body::before {
               <div class="receipt-header">
                 <div class="receipt-seal">Sellado · Inmutable</div>
                 <div class="receipt-title">Acta de retardo</div>
-                <div class="receipt-id">REG-DIEZ-20260507-09473821</div>
+                <div class="receipt-id" id="receipt-id">REG-DIEZ-20260507-09473821</div>
               </div>
 
               <div class="receipt-row">
@@ -2444,9 +2456,9 @@ body::before {
 
               <div class="receipt-hash">
                 <strong>Hash criptográfico SHA-256</strong>
-                a3f8b2c91d7e4f6a8b9c0d1e2f3a4b5c
-                6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a
+                <span id="receipt-hash-value">a3f8b2c91d7e4f6a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a</span>
               </div>
+              <div class="receipt-cloud" id="receipt-cloud-status"></div>
             </div>
 
             <div class="receipt-footer">
@@ -3904,6 +3916,9 @@ function doInstall() {
   document.head.appendChild(link);
 })();
 </script>
+
+<!-- Backend real (Etapa 2): conexión a Supabase y guardado de eventos -->
+<script src="backend.js"></script>
 
 </body>
 </html>
