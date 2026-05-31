@@ -84,9 +84,9 @@ async function sellarEvento() {
   // Guardar en la nube SOLO si hay sesión iniciada (base cerrada al público).
   // Sin sesión, la app sigue funcionando como demo: muestra el hash real
   // pero no escribe datos.
-  if (sb && sesion) {
+  if (sb && sesion && miEmpresa) {
     try {
-      const { error } = await sb.from('events').insert([{ ...evento, hash }]);
+      const { error } = await sb.from('events').insert([{ ...evento, hash, company_id: miEmpresa }]);
       if (error) throw error;
       if (elNube) { elNube.textContent = '✓ Guardado en la nube · hash real verificable'; elNube.className = 'receipt-cloud ok'; }
     } catch (e) {
@@ -277,24 +277,176 @@ async function salirSesion() {
   cerrarAcceso();
 }
 
+/* ============================================================
+   8. MULTI-EMPRESA (multi-tenant)
+   Cada usuario pertenece a una empresa. Al entrar por primera vez
+   se crea su empresa en blanco. Solo ve los datos de SU empresa.
+   ============================================================ */
+
+let miEmpresa = null;        // id de la empresa del usuario
+let miEmpresaNombre = '';    // nombre para mostrar
+let _aprovisionando = null;  // evita crear dos empresas a la vez
+
+function ensureCompany() {
+  if (_aprovisionando) return _aprovisionando;
+  _aprovisionando = (async () => {
+    miEmpresa = null; miEmpresaNombre = '';
+    if (!sb || !sesion) return;
+    try {
+      // ¿Ya tiene perfil/empresa?
+      const prof = (await sb.from('profiles')
+        .select('company_id').eq('id', sesion.user.id).maybeSingle()).data;
+
+      if (prof && prof.company_id) {
+        miEmpresa = prof.company_id;
+        const c = await sb.from('companies').select('name').eq('id', miEmpresa).maybeSingle();
+        miEmpresaNombre = (c.data && c.data.name) || 'Mi empresa';
+      } else {
+        // Primera vez: crear empresa en blanco + perfil.
+        const ins = await sb.from('companies').insert([{ name: 'Mi empresa' }])
+          .select('id,name').single();
+        if (ins.error) throw ins.error;
+        miEmpresa = ins.data.id;
+        miEmpresaNombre = ins.data.name;
+        await sb.from('profiles').insert([{ id: sesion.user.id, company_id: miEmpresa, role: 'admin' }]);
+      }
+    } catch (e) {
+      console.warn('No se pudo preparar la empresa.', e);
+    }
+  })().finally(() => { _aprovisionando = null; });
+  return _aprovisionando;
+}
+
+function aplicarNombreEmpresa() {
+  const el = document.getElementById('admin-company-name');
+  if (!el) return;
+  el.textContent = (sesion && miEmpresaNombre)
+    ? `${miEmpresaNombre} · tu espacio`
+    : 'DIEZ Creatividad Impresa · Colima';
+}
+
+/* ----- Trabajadores reales de la empresa ----- */
+
+function iniciales(nombre) {
+  return (nombre || '?').trim().split(/\s+/).map(w => w[0] || '').slice(0, 2).join('').toUpperCase();
+}
+
+function filaTrabajador(emp) {
+  return `
+    <div class="emp-row">
+      <div class="e-avatar">${escapaHtml(iniciales(emp.full_name))}<span class="risk-dot safe"></span></div>
+      <div><div class="e-name">${escapaHtml(emp.full_name)}</div><div class="e-role">${escapaHtml(emp.position || '—')}</div></div>
+      <div class="col-dept">${escapaHtml(emp.department || '—')}</div>
+      <div class="col-events">sin observaciones</div>
+      <span class="risk-tag safe">Bajo</span>
+    </div>`;
+}
+
+function renderEmpleadosReales(lista) {
+  const cont = document.getElementById('emp-real');
+  if (!cont) return;
+  const estiloInput = 'padding:9px 11px;border:1px solid rgba(10,14,26,0.18);border-radius:8px;font-size:13px;font-family:inherit;';
+  cont.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="gen-btn" onclick="toggleFormTrabajador()">+ Agregar trabajador</button>
+      <span class="hint" style="opacity:.7;">${lista.length} trabajador(es) · solo tu empresa los ve</span>
+    </div>
+    <div id="form-trabajador" style="display:none;background:rgba(10,14,26,0.03);border:1px solid rgba(10,14,26,0.10);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input id="nt-nombre" placeholder="Nombre completo" style="${estiloInput}flex:2;min-width:160px;" />
+        <input id="nt-puesto" placeholder="Puesto" style="${estiloInput}flex:1;min-width:120px;" />
+        <input id="nt-depto" placeholder="Área / depto." style="${estiloInput}flex:1;min-width:120px;" />
+      </div>
+      <div id="nt-msg" style="font-size:12px;color:#c0392b;min-height:14px;margin-top:8px;"></div>
+      <button class="gen-btn" onclick="guardarTrabajador()">Guardar trabajador</button>
+    </div>
+    ${lista.length === 0
+      ? `<div class="soon-banner">Aún no has agregado trabajadores. Toca <strong>“+ Agregar trabajador”</strong> para empezar la plantilla de tu empresa.</div>`
+      : `<div class="emp-table">${lista.map(filaTrabajador).join('')}</div>`}
+  `;
+}
+
+function toggleFormTrabajador() {
+  const f = document.getElementById('form-trabajador');
+  if (!f) return;
+  f.style.display = (f.style.display === 'none' || !f.style.display) ? 'block' : 'none';
+  if (f.style.display === 'block') document.getElementById('nt-nombre')?.focus();
+}
+
+async function guardarTrabajador() {
+  if (!sb || !sesion || !miEmpresa) return;
+  const nombre = (document.getElementById('nt-nombre')?.value || '').trim();
+  const puesto = (document.getElementById('nt-puesto')?.value || '').trim();
+  const depto = (document.getElementById('nt-depto')?.value || '').trim();
+  const msg = document.getElementById('nt-msg');
+  if (!nombre) { if (msg) msg.textContent = 'Escribe al menos el nombre.'; return; }
+  if (msg) msg.textContent = 'Guardando…';
+  try {
+    const { error } = await sb.from('employees').insert([{
+      company_id: miEmpresa, full_name: nombre, position: puesto || null, department: depto || null,
+    }]);
+    if (error) throw error;
+    await cargarTrabajadores(); // re-render (limpia el formulario)
+  } catch (e) {
+    console.warn('No se pudo guardar el trabajador.', e);
+    if (msg) msg.textContent = 'No se pudo guardar. Intenta de nuevo.';
+  }
+}
+
+async function cargarTrabajadores() {
+  if (!sb || !sesion) return;
+  try {
+    const { data, error } = await sb.from('employees').select('*')
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    renderEmpleadosReales(data || []);
+  } catch (e) {
+    console.warn('No se pudieron leer los trabajadores.', e);
+  }
+}
+
+// Alterna entre la vista DEMO (sin sesión) y la REAL (con sesión).
+function aplicarVistaEmpleados() {
+  const demo = document.getElementById('emp-table-demo');
+  const banner = document.getElementById('emp-demo-banner');
+  const real = document.getElementById('emp-real');
+  if (sesion) {
+    if (demo) demo.style.display = 'none';
+    if (banner) banner.style.display = 'none';
+    if (real) real.style.display = 'block';
+    cargarTrabajadores();
+  } else {
+    if (demo) demo.style.display = '';
+    if (banner) banner.style.display = '';
+    if (real) real.style.display = 'none';
+  }
+}
+
+// Refresca toda la UI según el estado de sesión.
+async function aplicarSesion() {
+  pintarBotonAuth();
+  await ensureCompany();
+  aplicarNombreEmpresa();
+  aplicarVistaEmpleados();
+  const exp = document.getElementById('tab-timeline');
+  if (sesion && exp) cargarEventosReales();
+}
+
 // Mantener el estado de sesión sincronizado y la UI al día.
 window.addEventListener('DOMContentLoaded', async () => {
   if (!sb) { pintarBotonAuth(); return; }
+
+  const ov = document.getElementById('auth-overlay');
+  if (ov) ov.addEventListener('click', e => { if (e.target === ov) cerrarAcceso(); });
+
+  sb.auth.onAuthStateChange(async (_evento, nuevaSesion) => {
+    sesion = nuevaSesion || null;
+    await aplicarSesion();
+  });
+
   try {
     const { data } = await sb.auth.getSession();
     sesion = data.session || null;
   } catch (e) { sesion = null; }
-  pintarBotonAuth();
-
-  sb.auth.onAuthStateChange((_evento, nuevaSesion) => {
-    sesion = nuevaSesion;
-    pintarBotonAuth();
-    // Si hay un expediente abierto, refrescar sus eventos reales.
-    const exp = document.getElementById('tab-timeline');
-    if (sesion && exp) cargarEventosReales();
-  });
-
-  // Cerrar la ventana al hacer clic fuera de la tarjeta.
-  const ov = document.getElementById('auth-overlay');
-  if (ov) ov.addEventListener('click', e => { if (e.target === ov) cerrarAcceso(); });
+  await aplicarSesion();
 });
