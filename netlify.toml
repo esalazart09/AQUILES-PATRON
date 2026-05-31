@@ -16,6 +16,13 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# La lógica de la app (backend.js) tampoco debe quedarse pegada en caché,
+# para que cada cambio llegue de inmediato a todos (incluida la tablet).
+[[headers]]
+  for = "/backend.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Encabezados de seguridad básicos para todo el sitio.
 [[headers]]
   for = "/*"
