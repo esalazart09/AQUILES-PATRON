@@ -2101,6 +2101,57 @@ body::before {
 <!-- ============================================================ -->
 <!-- PANTALLA: SELECCIÓN DE ROL (navegación raíz)                  -->
 <!-- ============================================================ -->
+<!-- ============ ACCESO / LOGIN REAL (Etapa 2) ============ -->
+<style>
+  #auth-btn {
+    position: fixed; top: 14px; right: 14px; z-index: 9000;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    background: rgba(244,241,234,0.10); color: var(--paper);
+    border: 1px solid rgba(244,241,234,0.25);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.05em; backdrop-filter: blur(6px);
+  }
+  #auth-btn:hover { background: rgba(244,241,234,0.18); }
+  #auth-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: #d04545; }
+  #auth-btn.in .dot { background: #1b8a5a; }
+  #auth-overlay {
+    position: fixed; inset: 0; z-index: 9001; display: none;
+    background: rgba(10,14,26,0.72); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  #auth-overlay.show { display: flex; }
+  #auth-card {
+    width: 100%; max-width: 360px; background: var(--paper);
+    border-radius: 14px; padding: 28px 26px;
+    box-shadow: 0 30px 80px -20px rgba(10,14,26,0.6);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  #auth-card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 21px; margin: 0 0 4px; color: var(--ink, #0a0e1a); }
+  #auth-card p.sub { font-size: 12.5px; color: rgba(10,14,26,0.6); margin: 0 0 18px; }
+  #auth-card label { display: block; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(10,14,26,0.55); margin: 12px 0 5px; }
+  #auth-card input {
+    width: 100%; box-sizing: border-box; padding: 11px 12px;
+    border: 1px solid rgba(10,14,26,0.18); border-radius: 8px;
+    font-size: 14px; font-family: inherit;
+  }
+  #auth-card input:focus { outline: none; border-color: var(--accent, #c08a3e); }
+  #auth-msg { min-height: 16px; font-size: 12px; margin: 12px 0 0; }
+  #auth-msg.err { color: #c0392b; }
+  #auth-msg.ok { color: #1b8a5a; }
+  #auth-actions { display: flex; gap: 10px; margin-top: 18px; }
+  #auth-actions button {
+    flex: 1; padding: 11px; border-radius: 8px; cursor: pointer;
+    font-size: 13.5px; font-family: inherit; font-weight: 500; border: none;
+  }
+  #auth-submit { background: var(--accent-deep, #0a0e1a); color: var(--paper); }
+  #auth-cancel { background: transparent; color: rgba(10,14,26,0.6); border: 1px solid rgba(10,14,26,0.2); }
+</style>
+<button id="auth-btn" onclick="abrirAcceso()"><span class="dot"></span><span id="auth-btn-label">Acceso</span></button>
+<div id="auth-overlay">
+  <div id="auth-card"><!-- contenido generado por backend.js --></div>
+</div>
+
 <div id="screen-home" class="app-screen active">
   <div class="home-brand">
     <span class="mark">AQUILES <em style="font-style:italic; color:var(--paper); font-weight:400;">Patrón</em></span>
