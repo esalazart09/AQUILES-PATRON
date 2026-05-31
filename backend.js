@@ -330,19 +330,16 @@ async function registrarSesion() {
 }
 
 async function salirSesion() {
-  if (sb) {
-    try { await sb.auth.signOut(); }
-    catch (e) { /* aunque falle, limpiamos el estado local abajo */ }
-  }
-  sesion = null;
-  miEmpresa = null;
-  miEmpresaNombre = '';
-  empresaError = null;
-  cerrarAcceso();
-  // Refrescar la UI de inmediato (no dependemos del aviso de Supabase).
-  pintarBotonAuth();
-  aplicarNombreEmpresa();
-  aplicarVistaEmpleados();
+  // 1) Cerrar sesión en Supabase (aunque falle, seguimos limpiando).
+  if (sb) { try { await sb.auth.signOut(); } catch (e) { /* noop */ } }
+  // 2) Borrar cualquier resto de sesión guardada en el navegador.
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (/^sb-|supabase/i.test(k)) localStorage.removeItem(k);
+    });
+  } catch (e) { /* noop */ }
+  // 3) Recargar la app para arrancar 100% limpia (a prueba de todo).
+  location.reload();
 }
 
 /* ============================================================
@@ -383,7 +380,11 @@ function ensureCompany() {
       }
     } catch (e) {
       console.warn('No se pudo preparar la empresa.', e);
-      empresaError = (e && (e.message || e.hint)) || 'No se pudo preparar tu empresa.';
+      const partes = [];
+      if (e && e.message) partes.push(e.message);
+      if (e && e.code) partes.push('código ' + e.code);
+      if (e && e.hint) partes.push(e.hint);
+      empresaError = partes.join(' · ') || 'No se pudo preparar tu empresa.';
       miEmpresa = null;
     }
   })().finally(() => { _aprovisionando = null; });
