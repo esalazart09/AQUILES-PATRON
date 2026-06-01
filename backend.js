@@ -419,12 +419,12 @@ function filaTrabajador(emp) {
     ? (emp.activities.length > 60 ? emp.activities.slice(0, 60) + '…' : emp.activities)
     : 'sin actividades capturadas';
   return `
-    <div class="emp-row">
+    <div class="emp-row" style="cursor:pointer;" onclick="abrirTrabajador('${emp.id}')">
       <div class="e-avatar">${escapaHtml(iniciales(emp.full_name))}<span class="risk-dot safe"></span></div>
       <div><div class="e-name">${escapaHtml(emp.full_name)}</div><div class="e-role">${escapaHtml(emp.position || '—')}</div></div>
       <div class="col-dept">${escapaHtml(pagoTexto(emp))}</div>
       <div class="col-events">${escapaHtml(actividades)}</div>
-      <span class="risk-tag safe">Activo</span>
+      <span class="risk-tag safe">Ver expediente</span>
     </div>`;
 }
 
@@ -570,4 +570,233 @@ window.addEventListener('DOMContentLoaded', async () => {
     sesion = data.session || null;
   } catch (e) { sesion = null; }
   await aplicarSesion();
+});
+
+/* ============================================================
+   9. EXPEDIENTE DEL TRABAJADOR (datos legales + documentos)
+   Al tocar un trabajador se abre su expediente: datos editables
+   y subida/visualización de archivos (INE, CURP, etc.), todo
+   aislado por empresa (Storage + tabla documents).
+   ============================================================ */
+
+let empActual = null; // id del trabajador abierto
+
+function ecMsg(texto, color) {
+  const m = document.getElementById('ec-msg');
+  if (m) { m.textContent = texto || ''; m.style.color = color || 'rgba(10,14,26,0.6)'; }
+}
+
+function sanitizaNombreArchivo(n) {
+  const punto = n.lastIndexOf('.');
+  const ext = punto > -1 ? n.slice(punto).toLowerCase() : '';
+  const base = (punto > -1 ? n.slice(0, punto) : n)
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'archivo';
+  return base + ext;
+}
+
+async function abrirTrabajador(empId) {
+  if (!sb || !sesion) return;
+  empActual = empId;
+  const ov = document.getElementById('emp-overlay');
+  const card = document.getElementById('emp-card');
+  if (!ov || !card) return;
+  card.innerHTML = '<p class="ec-sub">Cargando expediente…</p>';
+  ov.classList.add('show');
+
+  let emp = null, docs = [];
+  try {
+    const r1 = await sb.from('employees').select('*').eq('id', empId).maybeSingle();
+    if (r1.error) throw r1.error;
+    emp = r1.data;
+    const r2 = await sb.from('documents').select('*').eq('employee_id', empId)
+      .order('created_at', { ascending: false });
+    if (!r2.error) docs = r2.data || [];
+  } catch (e) {
+    console.warn('No se pudo abrir el expediente.', e);
+    card.innerHTML = `<p class="ec-sub">No se pudo abrir el expediente. ${escapaHtml(e.message || '')}</p>
+      <div id="auth-actions"><button id="auth-cancel" onclick="cerrarTrabajador()">Cerrar</button></div>`;
+    return;
+  }
+  if (!emp) { cerrarTrabajador(); return; }
+
+  const v = s => escapaHtml(s == null ? '' : String(s));
+  const opt = (val) => (p => `<option value="${p}" ${p === (emp.pay_period || '') ? 'selected' : ''}>${p || 'Periodo de pago…'}</option>`)(val);
+
+  card.innerHTML = `
+    <h3>${v(emp.full_name)}</h3>
+    <p class="ec-sub">Expediente del trabajador · solo tu empresa lo ve</p>
+
+    <div class="ec-section-title">Datos del puesto</div>
+    <div class="ec-grid">
+      <div><label>Nombre completo</label><input id="d-nombre" value="${v(emp.full_name)}" /></div>
+      <div><label>Puesto</label><input id="d-puesto" value="${v(emp.position)}" /></div>
+    </div>
+    <label>Actividades a realizar</label>
+    <textarea id="d-actividades" rows="2">${v(emp.activities)}</textarea>
+    <div class="ec-grid">
+      <div><label>Pago diario ($)</label><input id="d-pago" type="number" min="0" step="0.01" value="${v(emp.daily_pay)}" /></div>
+      <div><label>Periodo de pago</label>
+        <select id="d-periodo">
+          ${['', 'Diario', 'Semanal', 'Quincenal'].map(opt).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="ec-section-title">Datos legales (para contratos)</div>
+    <div class="ec-grid">
+      <div><label>CURP</label><input id="d-curp" value="${v(emp.curp)}" /></div>
+      <div><label>RFC</label><input id="d-rfc" value="${v(emp.rfc)}" /></div>
+      <div><label>NSS (IMSS)</label><input id="d-nss" value="${v(emp.nss)}" /></div>
+      <div><label>Fecha de nacimiento</label><input id="d-nacimiento" type="date" value="${v(emp.birth_date)}" /></div>
+    </div>
+    <label>Domicilio</label>
+    <input id="d-domicilio" value="${v(emp.address)}" />
+    <div class="ec-msg" id="ec-msg"></div>
+    <button class="gen-btn" onclick="guardarDatosTrabajador()">Guardar datos</button>
+
+    <hr class="ec-sep" />
+    <div class="ec-section-title">Documentos escaneados</div>
+    <div class="ec-grid">
+      <div><label>Tipo de documento</label>
+        <select id="doc-tipo">
+          <option value="INE">INE</option>
+          <option value="CURP">CURP</option>
+          <option value="NSS">NSS (IMSS)</option>
+          <option value="Comprobante de domicilio">Comprobante de domicilio</option>
+          <option value="Acta de nacimiento">Acta de nacimiento</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div><label>Archivo (foto o PDF)</label><input id="doc-file" type="file" accept="image/*,application/pdf" /></div>
+    </div>
+    <button class="gen-btn" onclick="subirDocumento()">Subir documento</button>
+    <div class="ec-msg" id="ec-doc-msg"></div>
+
+    <div id="ec-doc-list" style="margin-top:10px;">${renderDocs(docs)}</div>
+
+    <hr class="ec-sep" />
+    <div id="auth-actions">
+      <button id="auth-cancel" onclick="cerrarTrabajador()">Cerrar</button>
+    </div>
+  `;
+}
+
+function renderDocs(docs) {
+  if (!docs || docs.length === 0) {
+    return '<p class="ec-sub" style="margin:0;">Aún no hay documentos. Sube el INE, CURP, etc.</p>';
+  }
+  return docs.map(d => `
+    <div class="ec-doc">
+      <span style="font-weight:600;min-width:70px;">${escapaHtml(d.doc_type || 'Doc')}</span>
+      <span class="ecd-name">${escapaHtml(d.file_name || '')}</span>
+      <button class="linklike" onclick="verDocumento('${escapaHtml(d.file_path)}')">Ver</button>
+      <button class="linklike" style="color:#c0392b;" onclick="eliminarDocumento('${d.id}','${escapaHtml(d.file_path)}')">Borrar</button>
+    </div>`).join('');
+}
+
+function cerrarTrabajador() {
+  const ov = document.getElementById('emp-overlay');
+  if (ov) ov.classList.remove('show');
+  empActual = null;
+}
+
+async function guardarDatosTrabajador() {
+  if (!sb || !sesion || !empActual) return;
+  const val = id => (document.getElementById(id)?.value || '').trim();
+  const nombre = val('d-nombre');
+  if (!nombre) { ecMsg('El nombre no puede quedar vacío.', '#c0392b'); return; }
+  const pagoTxt = val('d-pago');
+  ecMsg('Guardando…');
+  try {
+    const { error } = await sb.from('employees').update({
+      full_name: nombre,
+      position: val('d-puesto') || null,
+      activities: val('d-actividades') || null,
+      daily_pay: pagoTxt === '' ? null : Number(pagoTxt),
+      pay_period: val('d-periodo') || null,
+      curp: val('d-curp') || null,
+      rfc: val('d-rfc') || null,
+      nss: val('d-nss') || null,
+      birth_date: val('d-nacimiento') || null,
+      address: val('d-domicilio') || null,
+    }).eq('id', empActual);
+    if (error) throw error;
+    ecMsg('✓ Datos guardados', '#1b8a5a');
+    cargarTrabajadores(); // refrescar la lista de fondo
+  } catch (e) {
+    console.warn('No se pudieron guardar los datos.', e);
+    ecMsg('No se pudo guardar: ' + (e.message || ''), '#c0392b');
+  }
+}
+
+function docMsg(texto, color) {
+  const m = document.getElementById('ec-doc-msg');
+  if (m) { m.textContent = texto || ''; m.style.color = color || 'rgba(10,14,26,0.6)'; }
+}
+
+async function subirDocumento() {
+  if (!sb || !sesion || !miEmpresa || !empActual) return;
+  const input = document.getElementById('doc-file');
+  const tipo = document.getElementById('doc-tipo')?.value || 'Otro';
+  const file = input?.files?.[0];
+  if (!file) { docMsg('Elige un archivo primero.', '#c0392b'); return; }
+  if (file.size > 10 * 1024 * 1024) { docMsg('El archivo es muy grande (máx. 10 MB).', '#c0392b'); return; }
+
+  const path = `${miEmpresa}/${empActual}/${Date.now()}-${sanitizaNombreArchivo(file.name)}`;
+  docMsg('Subiendo…');
+  try {
+    const up = await sb.storage.from('documentos').upload(path, file, { upsert: false });
+    if (up.error) throw up.error;
+    const ins = await sb.from('documents').insert([{
+      company_id: miEmpresa, employee_id: empActual,
+      doc_type: tipo, file_path: path, file_name: file.name,
+    }]);
+    if (ins.error) throw ins.error;
+    docMsg('✓ Documento subido', '#1b8a5a');
+    if (input) input.value = '';
+    // refrescar la lista de documentos
+    const r = await sb.from('documents').select('*').eq('employee_id', empActual)
+      .order('created_at', { ascending: false });
+    const cont = document.getElementById('ec-doc-list');
+    if (cont) cont.innerHTML = renderDocs(r.data || []);
+  } catch (e) {
+    console.warn('No se pudo subir el documento.', e);
+    docMsg('No se pudo subir: ' + (e.message || ''), '#c0392b');
+  }
+}
+
+async function verDocumento(path) {
+  if (!sb) return;
+  try {
+    const { data, error } = await sb.storage.from('documentos').createSignedUrl(path, 120);
+    if (error) throw error;
+    window.open(data.signedUrl, '_blank');
+  } catch (e) {
+    console.warn('No se pudo abrir el documento.', e);
+    docMsg('No se pudo abrir el documento.', '#c0392b');
+  }
+}
+
+async function eliminarDocumento(docId, path) {
+  if (!sb || !sesion) return;
+  if (!confirm('¿Borrar este documento? No se puede deshacer.')) return;
+  try {
+    await sb.storage.from('documentos').remove([path]);
+    const { error } = await sb.from('documents').delete().eq('id', docId);
+    if (error) throw error;
+    const r = await sb.from('documents').select('*').eq('employee_id', empActual)
+      .order('created_at', { ascending: false });
+    const cont = document.getElementById('ec-doc-list');
+    if (cont) cont.innerHTML = renderDocs(r.data || []);
+  } catch (e) {
+    console.warn('No se pudo borrar el documento.', e);
+    docMsg('No se pudo borrar: ' + (e.message || ''), '#c0392b');
+  }
+}
+
+// Cerrar el expediente al tocar fuera de la tarjeta.
+window.addEventListener('DOMContentLoaded', () => {
+  const ov = document.getElementById('emp-overlay');
+  if (ov) ov.addEventListener('click', e => { if (e.target === ov) cerrarTrabajador(); });
 });
