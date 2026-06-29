@@ -203,6 +203,11 @@ ads.
 
 ---
 
+> 📘 **Ejecución detallada:** el *cómo* exacto de cada bloque (construir la
+> lista, calificar prospectos, escribir cada mensaje, la secuencia de
+> seguimiento de 5 toques y las fórmulas de contenido) está en
+> `PLAYBOOK-CAPTACION.md`, destilado de recursos reales de marketing B2B.
+
 ## 6. Plantillas de prospección (ajustar tono, no la estructura)
 
 **LinkedIn / WhatsApp — primer contacto a dueño de empresa:**
