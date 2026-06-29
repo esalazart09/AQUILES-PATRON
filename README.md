@@ -44,3 +44,26 @@ python3 -m http.server 8000
 
 Sitio estático en **Netlify** con publicación automática desde GitHub.
 La configuración vive en `netlify.toml` (sin build command, publica la raíz).
+
+---
+
+## Sistema de captación de clientes (despacho)
+
+Además del producto, este repo contiene el sistema de marketing y ventas
+para conseguir clientes de **AQUILES Blindaje Corporativo & Laboral** en
+Colima. Documentos (leer en este orden):
+
+1. **`ESTRATEGIA-MARKETING.md`** — diagnóstico, cliente ideal, embudo,
+   rutina diaria, alianzas y plan de 90 días.
+2. **`PLAYBOOK-CAPTACION.md`** — el *cómo* exacto: construir y calificar la
+   lista, escribir el primer contacto, secuencia de seguimiento y
+   contenido de autoridad (destilado de recursos B2B reales).
+3. **`PROSPECTOS-COLIMA-LOTE1.md`** y **`PROSPECTOS-COLIMA-LOTE2.md`** —
+   20 empresas reales de Colima con teléfono verificado, giro y vía al
+   decisor (industria, agroindustria del limón, hotelería, aduanal).
+4. **`TRACKER-PROSPECTOS.csv`** — los 20 prospectos listos para importar a
+   Google Sheets y dar seguimiento.
+5. **`ESTRATEGIA-CIERRE.md`** — cómo cerrarlos, con metodologías probadas
+   (SPIN Selling, Challenger Sale, Sandler).
+6. **`GUION-DIAGNOSTICO-1PAGINA.md`** — guion imprimible para la reunión de
+   diagnóstico con las preguntas listas.
