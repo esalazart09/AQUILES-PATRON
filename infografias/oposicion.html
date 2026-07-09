@@ -1,0 +1,417 @@
+<title>El Examen de Oposición · Ley del Notariado de Colima</title>
+<style>
+  :root{
+    --night:#0E1B31;
+    --night-2:#14284A;
+    --night-3:#0A1424;
+    --parchment:#F4E9CE;
+    --panel:#FBF5E5;
+    --panel-2:#F3E7C6;
+    --ink:#152238;
+    --ink-soft:#3B4A63;
+    --muted:#7C6F4E;
+    --wax:#A4161A;
+    --wax-deep:#7A1012;
+    --gold:#C9A227;
+    --gold-soft:#E7CE7C;
+    --gold-deep:#9C7B18;
+    --line:#CBB988;
+    --line-dk:rgba(201,162,39,.34);
+    --serif:Georgia,"Times New Roman",'Iowan Old Style',serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#05070d;font-family:var(--sans);color:var(--parchment);
+    -webkit-font-smoothing:antialiased;}
+
+  .poster{
+    width:960px;max-width:100%;margin:0 auto;position:relative;overflow:hidden;
+    background:
+      radial-gradient(130% 55% at 50% -8%, #1B3563 0%, var(--night) 42%, var(--night-3) 100%);
+    border:2px solid #000;
+  }
+  .poster::before{ content:"";position:absolute;inset:12px;border:1px solid var(--line-dk);pointer-events:none;z-index:4;}
+  .poster::after{ /* starfield/paper grain */
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.5;
+    background-image:radial-gradient(rgba(231,206,124,.10) 0.7px,transparent 0.8px);
+    background-size:22px 22px;}
+  .wrap{position:relative;z-index:3;padding:46px 54px 40px;}
+
+  h1,h2,h3,h4{font-family:var(--serif);margin:0;line-height:1.05;text-wrap:balance;}
+  p{margin:0;line-height:1.55;}
+  .eyebrow{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--gold-soft);}
+  .gold-txt{color:var(--gold-soft);}
+
+  /* ---------- HERO ---------- */
+  header{text-align:center;position:relative;padding-bottom:6px;}
+  .crest{width:120px;height:120px;margin:0 auto 4px;display:block;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));}
+  .kick{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 14px;}
+  .kick span{height:1px;width:90px;background:linear-gradient(90deg,transparent,var(--gold));}
+  .kick span:last-child{background:linear-gradient(90deg,var(--gold),transparent);}
+  h1{font-size:62px;letter-spacing:1px;color:#FBF3DC;
+    text-shadow:0 2px 0 rgba(0,0,0,.35);}
+  h1 em{font-style:normal;color:var(--gold-soft);}
+  .lede{font-family:var(--serif);font-style:italic;font-size:23px;color:#E9D9AE;margin-top:12px;}
+  .tag{display:inline-block;margin-top:18px;font-family:var(--sans);font-size:12.5px;
+    letter-spacing:.05em;color:#E4D6AE;border:1px solid var(--line-dk);border-radius:999px;
+    padding:8px 18px;background:rgba(201,162,39,.08);}
+  .tag b{color:var(--gold-soft);}
+
+  /* section scaffolding */
+  section{margin-top:36px;position:relative;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .sec-head .rn{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--night);
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));width:34px;height:34px;
+    border-radius:50%;display:grid;place-items:center;flex:none;
+    box-shadow:0 0 0 3px rgba(201,162,39,.18),0 3px 6px rgba(0,0,0,.4);}
+  .sec-head h2{font-size:26px;color:#FBF3DC;flex:1;}
+  .sec-head .art{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.12em;
+    color:var(--gold);text-transform:uppercase;white-space:nowrap;}
+
+  .lead-c{font-size:15.5px;color:#DFD2AC;max-width:64ch;margin:0 auto;text-align:center;}
+
+  /* cream card base */
+  .card{background:var(--panel);color:var(--ink);border-radius:12px;
+    border:1px solid var(--gold-deep);box-shadow:0 10px 26px rgba(0,0,0,.45);}
+
+  /* ---------- CONVOCATORIA ---------- */
+  .conv{padding:22px 24px;}
+  .conv .top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .conv .top svg{width:30px;height:30px;color:var(--wax);flex:none;}
+  .conv .top b{font-family:var(--serif);font-size:18px;color:var(--ink);}
+  .conv .top span{font-size:13px;color:var(--ink-soft);}
+  .pub{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+  .pub div{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;}
+  .pub .n{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--wax);line-height:1;}
+  .pub .t{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.35;}
+  .deadline{display:flex;align-items:center;gap:12px;background:rgba(164,22,26,.08);
+    border-left:4px solid var(--wax);border-radius:0 8px 8px 0;padding:11px 14px;}
+  .deadline svg{width:24px;height:24px;color:var(--wax);flex:none;}
+  .deadline p{font-size:13px;color:var(--ink-soft);}
+  .deadline b{color:var(--wax-deep);}
+
+  /* ---------- REQUISITOS chips ---------- */
+  .reqs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .chip{background:rgba(244,233,206,.06);border:1px solid var(--line-dk);border-radius:10px;
+    padding:15px 14px;text-align:center;}
+  .chip svg{width:30px;height:30px;color:var(--gold-soft);margin-bottom:8px;}
+  .chip b{display:block;font-family:var(--serif);font-size:15px;color:#FBF3DC;margin-bottom:3px;}
+  .chip span{font-size:12px;color:#CFC09A;line-height:1.4;}
+
+  /* ---------- JURADO strip ---------- */
+  .jury{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:linear-gradient(180deg,rgba(201,162,39,.1),rgba(201,162,39,.03));
+    border:1px solid var(--line-dk);border-radius:12px;padding:18px 18px;}
+  .juror{flex:1;text-align:center;}
+  .medal{width:52px;height:52px;margin:0 auto 8px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#C6474A,var(--wax) 58%,var(--wax-deep));
+    display:grid;place-items:center;color:#F6E7C6;border:2px solid var(--gold-soft);
+    box-shadow:0 3px 8px rgba(0,0,0,.5);}
+  .medal svg{width:26px;height:26px;}
+  .juror b{display:block;font-family:var(--serif);font-size:12.5px;color:#FBF3DC;line-height:1.2;}
+  .juror span{display:block;font-size:10px;color:var(--gold-soft);margin-top:3px;
+    letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
+  .jury-div{width:1px;align-self:stretch;background:var(--line-dk);}
+  .jury-note{font-size:11.5px;color:#BFB088;text-align:center;margin-top:9px;font-style:italic;}
+
+  /* ---------- LAS DOS PRUEBAS (centerpiece) ---------- */
+  .arena{position:relative;display:grid;grid-template-columns:1fr 64px 1fr;gap:0;align-items:stretch;}
+  .trial{background:var(--panel);color:var(--ink);border:1px solid var(--gold-deep);
+    box-shadow:0 12px 30px rgba(0,0,0,.5);padding:22px 22px 20px;}
+  .trial.left{border-radius:12px 0 0 12px;}
+  .trial.right{border-radius:0 12px 12px 0;}
+  .trial .rom{font-family:var(--serif);font-size:15px;font-weight:700;letter-spacing:.18em;
+    color:var(--wax);text-transform:uppercase;}
+  .trial h3{font-size:22px;color:var(--ink);margin:4px 0 12px;}
+  .trial .ic{width:46px;height:46px;color:var(--wax);margin-bottom:6px;}
+  .trial ul{margin:0;padding:0;list-style:none;}
+  .trial li{font-size:13px;color:var(--ink-soft);padding:6px 0 6px 24px;position:relative;line-height:1.4;}
+  .trial li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;
+    border-radius:2px;transform:rotate(45deg);background:var(--gold);}
+  .trial .facts{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);}
+  .trial .facts div{flex:1;text-align:center;}
+  .trial .facts .n{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--wax);line-height:1;}
+  .trial .facts .l{font-size:10.5px;color:var(--ink-soft);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;}
+  .vs{position:relative;display:grid;place-items:center;background:linear-gradient(180deg,var(--night-2),var(--night-3));
+    border-top:1px solid var(--gold-deep);border-bottom:1px solid var(--gold-deep);}
+  .vs .amp{font-family:var(--serif);font-style:italic;font-size:34px;color:var(--gold-soft);
+    text-shadow:0 2px 4px rgba(0,0,0,.6);}
+  .vs::before,.vs::after{content:"";position:absolute;left:50%;transform:translateX(-50%);
+    width:2px;height:26px;background:linear-gradient(var(--gold),transparent);}
+  .vs::before{top:8px;} .vs::after{bottom:8px;background:linear-gradient(transparent,var(--gold));}
+
+  /* ---------- MARCADOR / calificación ---------- */
+  .score{padding:24px;text-align:center;}
+  .score h3{font-size:22px;color:var(--ink);margin-bottom:4px;}
+  .score .sub{font-size:13px;color:var(--ink-soft);max-width:56ch;margin:0 auto 18px;}
+  .gauge{display:flex;align-items:flex-end;justify-content:center;gap:6px;height:120px;margin:0 auto 6px;max-width:520px;}
+  .bar{flex:1;background:linear-gradient(180deg,var(--panel-2),#EAD9AC);border:1px solid var(--line);
+    border-radius:5px 5px 0 0;position:relative;display:flex;align-items:flex-start;justify-content:center;}
+  .bar span{font-family:var(--serif);font-size:12px;color:var(--muted);margin-top:4px;font-weight:700;}
+  .bar.pass{background:linear-gradient(180deg,#DFC15A,var(--gold));border-color:var(--gold-deep);}
+  .bar.pass span{color:var(--night);}
+  .threshold{position:relative;max-width:520px;margin:0 auto;}
+  .threshold .line{border-top:2px dashed var(--wax);position:relative;}
+  .threshold .flag{position:absolute;right:0;top:-12px;background:var(--wax);color:#FBF3DC;
+    font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.04em;}
+  .score .rule{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .score .pill{font-size:12.5px;color:var(--ink-soft);background:var(--panel-2);
+    border:1px solid var(--line);border-radius:999px;padding:8px 15px;}
+  .score .pill b{color:var(--ink);}
+
+  /* ---------- SOLO UN ASPIRANTE ---------- */
+  .lone{display:flex;align-items:center;gap:16px;background:rgba(201,162,39,.09);
+    border:1px solid var(--line-dk);border-left:4px solid var(--gold);border-radius:10px;padding:16px 20px;}
+  .lone svg{width:40px;height:40px;color:var(--gold-soft);flex:none;}
+  .lone p{font-size:13.5px;color:#E1D3AC;}
+  .lone b{color:var(--gold-soft);}
+
+  /* ---------- PREMIO ---------- */
+  .prize{position:relative;text-align:center;padding:30px 26px 26px;overflow:hidden;
+    background:radial-gradient(120% 120% at 50% 0%,#20315A,var(--night-2) 55%,var(--night-3));
+    border:1px solid var(--gold-deep);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.5);}
+  .prize .throne{width:74px;height:74px;margin:0 auto 8px;color:var(--gold-soft);
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+  .prize .eyebrow{color:var(--gold-soft);}
+  .prize h3{font-size:30px;color:#FBF3DC;margin:8px 0 6px;}
+  .prize p{font-size:14px;color:#DED0A8;max-width:60ch;margin:0 auto;}
+  .prize .regs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+  .prize .reg{font-size:11.5px;color:#EAD9AC;border:1px solid var(--line-dk);border-radius:8px;
+    padding:8px 13px;background:rgba(201,162,39,.07);}
+  .prize .warn{margin-top:16px;font-size:12px;color:#F0C9B0;background:rgba(164,22,26,.22);
+    border:1px solid rgba(164,22,26,.5);border-radius:8px;padding:9px 14px;display:inline-block;}
+  .prize .warn b{color:#FBD9C4;}
+  .laurel-l,.laurel-r{position:absolute;top:26px;width:60px;height:150px;color:rgba(201,162,39,.5);}
+  .laurel-l{left:18px;} .laurel-r{right:18px;transform:scaleX(-1);}
+
+  footer{margin-top:34px;border-top:1px solid var(--line-dk);padding-top:16px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  footer p{font-size:11px;color:#A99C78;line-height:1.45;max-width:64ch;}
+  footer .mk{font-family:var(--serif);font-size:13px;color:var(--gold-soft);font-weight:700;white-space:nowrap;}
+
+  @media (max-width:640px){
+    .wrap{padding:30px 20px;}
+    h1{font-size:40px;} .lede{font-size:18px;}
+    .reqs,.pub{grid-template-columns:1fr 1fr;}
+    .arena{grid-template-columns:1fr;}
+    .trial.left{border-radius:12px 12px 0 0;} .trial.right{border-radius:0 0 12px 12px;}
+    .vs{min-height:52px;border-left:1px solid var(--gold-deep);border-right:1px solid var(--gold-deep);}
+    .jury{flex-wrap:wrap;} .jury-div{display:none;} .juror{flex-basis:30%;}
+  }
+</style>
+
+<div class="poster">
+  <div class="wrap">
+
+    <!-- ============= HERO ============= -->
+    <header>
+      <svg class="crest" viewBox="0 0 120 120" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E7CE7C"/><stop offset="1" stop-color="#9C7B18"/></linearGradient></defs>
+        <!-- laurels -->
+        <g fill="none" stroke="url(#g)" stroke-width="2.2" stroke-linecap="round">
+          <path d="M40 96 C22 84 20 60 30 40"/>
+          <path d="M80 96 C98 84 100 60 90 40"/>
+        </g>
+        <g fill="url(#g)">
+          <path d="M30 46 q-10 2 -13 10 q10 2 14 -4 z"/><path d="M28 58 q-10 3 -12 11 q10 1 14 -5 z"/>
+          <path d="M31 70 q-10 3 -11 11 q9 1 13 -5 z"/>
+          <path d="M90 46 q10 2 13 10 q-10 2 -14 -4 z"/><path d="M92 58 q10 3 12 11 q-10 1 -14 -5 z"/>
+          <path d="M89 70 q10 3 11 11 q-9 1 -13 -5 z"/>
+        </g>
+        <!-- shield -->
+        <path d="M60 20 L86 30 V58 C86 78 74 90 60 98 C46 90 34 78 34 58 V30 Z"
+              fill="#A4161A" stroke="url(#g)" stroke-width="2.4"/>
+        <!-- quill -->
+        <path d="M52 74 C58 58 70 46 78 42 C74 54 66 66 54 74 Z" fill="#F4E9CE"/>
+        <path d="M50 76 l8 -3" stroke="#F4E9CE" stroke-width="2.4" stroke-linecap="round"/>
+        <text x="60" y="52" text-anchor="middle" font-family="Georgia,serif" font-size="15" font-weight="bold" fill="#F4E9CE">§</text>
+      </svg>
+      <div class="eyebrow">Ley del Notariado del Estado de Colima</div>
+      <div class="kick"><span></span><span></span></div>
+      <h1>El Examen de <em>Oposición</em></h1>
+      <p class="lede">La contienda por la titularidad de una notaría</p>
+      <div class="tag">Capítulo Quinto · <b>Artículos&nbsp;110&nbsp;a&nbsp;119</b> · Reforma <b>Dec.&nbsp;402, 01&nbsp;nov&nbsp;2014</b></div>
+    </header>
+
+    <p class="lead-c" style="margin-top:22px;">Cuando se crea una notaría o queda <span class="gold-txt">vacante</span>, el nombramiento de Notario titular no se hereda: <b class="gold-txt">se gana por oposición</b>. Varios aspirantes compiten ante un mismo jurado por un único lugar.</p>
+
+    <!-- ============= 1 · CONVOCATORIA ============= -->
+    <section>
+      <div class="sec-head">
+        <div class="rn">1</div>
+        <h2>La convocatoria</h2>
+        <div class="art">Art. 110 · 78</div>
+      </div>
+      <div class="card conv">
+        <div class="top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8A3 3 0 0 1 6 15"/></svg>
+          <div><b>Se abre cuando hay notaría nueva o vacante.</b><br><span>La Secretaría General de Gobierno publica la convocatoria en tres frentes:</span></div>
+        </div>
+        <div class="pub">
+          <div><div class="n">1×</div><div class="t">en el <b>Periódico Oficial</b> del Estado</div></div>
+          <div><div class="n">2×</div><div class="t">en un diario de mayor circulación, cada <b>10 días</b></div></div>
+          <div><div class="n">web</div><div class="t">en la <b>página de Internet</b> del Gobierno</div></div>
+        </div>
+        <div class="deadline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <p>Los aspirantes tienen <b>5 días naturales</b> desde la publicación en el P.O. para solicitar por escrito su admisión al examen ante el Secretario General de Gobierno.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= 2 · REQUISITOS DEL CONTENDIENTE ============= -->
+    <section>
+      <div class="sec-head">
+        <div class="rn">2</div>
+        <h2>Quién puede contender</h2>
+        <div class="art">Art. 82 · 92</div>
+      </div>
+      <div class="reqs">
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+          <b>Ser aspirante</b><span>Contar con patente de aspirante al notariado (art. 82, frac. VII).</span></div>
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <b>35 años+</b><span>Haber cumplido treinta y cinco años de edad.</span></div>
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>
+          <b>Abogado con trayectoria</b><span>Licenciado en Derecho con 5 años de ejercicio comprobado.</span></div>
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l-1-1c-5-4-8-7-8-11a4 4 0 0 1 8-1 4 4 0 0 1 8 1c0 4-3 7-8 11z"/></svg>
+          <b>1 año de práctica</b><span>Práctica ininterrumpida con un Notario del Estado.</span></div>
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
+          <b>Vecino del Estado</b><span>Al menos 5 años de vecindad en Colima.</span></div>
+        <div class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+          <b>Honorabilidad</b><span>Buena conducta, sin condena por delito intencional.</span></div>
+      </div>
+    </section>
+
+    <!-- ============= 3 · JURADO ============= -->
+    <section>
+      <div class="sec-head">
+        <div class="rn">3</div>
+        <h2>El jurado: cinco sinodales</h2>
+        <div class="art">Art. 112</div>
+      </div>
+      <div class="jury">
+        <div class="juror"><div class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 20h18"/><path d="M5 20l1-9 6-5 6 5 1 9"/><path d="M12 6V3"/></svg></div><b>Gobernador</b><span>Presidente</span></div>
+        <div class="jury-div"></div>
+        <div class="juror"><div class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><b>Secretario Gral. de Gobierno</b><span>Vocal</span></div>
+        <div class="jury-div"></div>
+        <div class="juror"><div class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div><b>Director Gral. de Gobierno</b><span>Secretario</span></div>
+        <div class="jury-div"></div>
+        <div class="juror"><div class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M12 12l-2 9 2-2 2 2z"/></svg></div><b>Presidente del Colegio</b><span>Vocal</span></div>
+        <div class="jury-div"></div>
+        <div class="juror"><div class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7" r="3.2"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg></div><b>Delegado del Colegio</b><span>Vocal</span></div>
+      </div>
+      <p class="jury-note">Suplentes: el Director de Asuntos Jurídicos y Consultoría y el Subdirector Jurídico de la Secretaría General de Gobierno.</p>
+    </section>
+
+    <!-- ============= 4 · LAS DOS PRUEBAS ============= -->
+    <section>
+      <div class="sec-head">
+        <div class="rn">4</div>
+        <h2>Las dos pruebas</h2>
+        <div class="art">Art. 113 – 115</div>
+      </div>
+      <div class="arena">
+        <div class="trial left">
+          <div class="rom">Prueba I</div>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h9l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M13 4v5h5"/><path d="M7 13h8M7 16h6"/></svg>
+          <h3>Práctica</h3>
+          <ul>
+            <li>Redactar un <b>instrumento notarial</b> sobre el tema sorteado.</li>
+            <li>20 temas en sobres cerrados, enumerados, sellados y rubricados.</li>
+            <li>Sin auxilio de persona alguna, bajo vigilancia del Secretario.</li>
+          </ul>
+          <div class="facts">
+            <div><div class="n">20</div><div class="l">temas</div></div>
+            <div><div class="n">5 h</div><div class="l">ininterrumpidas</div></div>
+          </div>
+        </div>
+        <div class="vs"><span class="amp">&amp;</span></div>
+        <div class="trial right">
+          <div class="rom">Prueba II</div>
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 7v10M9 10l3-3 3 3"/></svg>
+          <h3>Teórica</h3>
+          <ul>
+            <li>El jurado <b>replica</b> a cada sustentante puntos de derecho difíciles.</li>
+            <li>Materias de aplicación en el ejercicio de la función notarial.</li>
+            <li>Se examina por orden de presentación; quien no acude, pierde turno.</li>
+          </ul>
+          <div class="facts">
+            <div><div class="n">5</div><div class="l">sinodales replican</div></div>
+            <div><div class="n">1×1</div><div class="l">por turno</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= 5 · MARCADOR ============= -->
+    <section>
+      <div class="sec-head">
+        <div class="rn">5</div>
+        <h2>El marcador</h2>
+        <div class="art">Art. 116</div>
+      </div>
+      <div class="card score">
+        <h3>Notas del 1 al 10 — mínimo <span style="color:var(--wax)">7</span> para triunfar</h3>
+        <p class="sub">A puerta cerrada, cada sinodal califica del 1 al 10 la prueba práctica y del 1 al 10 la réplica teórica; el jurado decide por mayoría de votos.</p>
+        <div class="gauge">
+          <div class="bar" style="height:30%"><span>3</span></div>
+          <div class="bar" style="height:40%"><span>4</span></div>
+          <div class="bar" style="height:50%"><span>5</span></div>
+          <div class="bar" style="height:60%"><span>6</span></div>
+          <div class="bar pass" style="height:70%"><span>7</span></div>
+          <div class="bar pass" style="height:80%"><span>8</span></div>
+          <div class="bar pass" style="height:90%"><span>9</span></div>
+          <div class="bar pass" style="height:100%"><span>10</span></div>
+        </div>
+        <div class="threshold"><div class="line"></div><div class="flag">APROBADO ≥ 7</div></div>
+        <div class="rule">
+          <div class="pill"><b>Práctica:</b> nota 1–10 por sinodal</div>
+          <div class="pill"><b>Teórica:</b> nota 1–10 por sinodal</div>
+          <div class="pill">Decisión por <b>mayoría de votos</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= 6 · SOLO UN ASPIRANTE ============= -->
+    <section>
+      <div class="lone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="4"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg>
+        <p><b>¿Y si sólo se presenta un aspirante?</b> Aun así el jurado lo examina; de resultar aprobado, tiene derecho a que el Gobernador le extienda el nombramiento de Notario titular <span class="gold-txt">(art. 110)</span>.</p>
+      </div>
+    </section>
+
+    <!-- ============= 7 · EL PREMIO ============= -->
+    <section>
+      <div class="prize">
+        <svg class="laurel-l" viewBox="0 0 60 150" fill="currentColor" aria-hidden="true"><path d="M40 4 C20 30 16 70 26 110 C30 128 38 140 46 148 C40 132 36 116 36 100 C46 104 54 100 58 92 C48 92 40 88 36 82 C46 84 54 78 57 70 C47 72 39 68 35 62 C45 62 52 56 55 48 C45 50 38 46 34 40 C44 38 50 32 52 24 C43 28 36 24 33 18 C42 14 47 8 48 0 C44 2 42 3 40 4 Z"/></svg>
+        <svg class="laurel-r" viewBox="0 0 60 150" fill="currentColor" aria-hidden="true"><path d="M40 4 C20 30 16 70 26 110 C30 128 38 140 46 148 C40 132 36 116 36 100 C46 104 54 100 58 92 C48 92 40 88 36 82 C46 84 54 78 57 70 C47 72 39 68 35 62 C45 62 52 56 55 48 C45 50 38 46 34 40 C44 38 50 32 52 24 C43 28 36 24 33 18 C42 14 47 8 48 0 C44 2 42 3 40 4 Z"/></svg>
+        <svg class="throne" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/><path d="M4 10a2 2 0 0 1 2 2v3h12v-3a2 2 0 0 1 2-2"/><path d="M6 15v4M18 15v4M9 19h6"/></svg>
+        <div class="eyebrow">El premio · Art. 119</div>
+        <h3>Nombramiento de Notario titular</h3>
+        <p>El Gobernador del Estado extiende el nombramiento al triunfador de la oposición. Su nombramiento queda inscrito en tres registros:</p>
+        <div class="regs">
+          <div class="reg">Secretaría de Gobierno</div>
+          <div class="reg">Instituto para el Registro del Territorio</div>
+          <div class="reg">Consejo de Notarios</div>
+        </div>
+        <div class="warn">Si la mayoría del jurado vota la reprobación, <b>no hay nuevo examen sino después de un año</b> (art. 117).</div>
+      </div>
+    </section>
+
+    <!-- ============= FOOTER ============= -->
+    <footer>
+      <p>Fuente: <b>Ley del Notariado del Estado de Colima</b>, Título Segundo, Capítulo Quinto «Del nombramiento de los Notarios», artículos 110 a 119. Última reforma: Decreto 402, P.O. 50, Supl. 2, 01 de noviembre de 2014. Infografía de carácter informativo.</p>
+      <div class="mk">✦ Fe Pública · Colima</div>
+    </footer>
+
+  </div>
+</div>
