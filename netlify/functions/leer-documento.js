@@ -11,7 +11,11 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
 // Modelo configurable por variable de entorno (a prueba de futuro).
-const MODELO = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+// Haiku: el más económico (~fracción de centavo por documento), suficiente
+// para leer INE/CURP/comprobantes claros. Si algún día se necesita más
+// precisión con documentos difíciles, cambiar a 'claude-sonnet-5' (aquí o en
+// la variable de entorno ANTHROPIC_MODEL, sin tocar código).
+const MODELO = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 
 // Qué datos pedimos según el tipo de documento.
 const INSTRUCCIONES = {
