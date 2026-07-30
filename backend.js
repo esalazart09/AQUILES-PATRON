@@ -686,8 +686,12 @@ async function abrirTrabajador(empId) {
       </div>
       <div><label>Archivo (foto o PDF)</label><input id="doc-file" type="file" accept="image/*,application/pdf" /></div>
     </div>
-    <button class="gen-btn" onclick="subirDocumento()">Subir documento</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="gen-btn" onclick="subirDocumento()">Subir documento</button>
+      <button class="gen-btn ghost" onclick="leerDocumentoIA()">✨ Leer datos con IA</button>
+    </div>
     <div class="ec-msg" id="ec-doc-msg"></div>
+    <p style="font-size:11px;color:rgba(10,14,26,0.5);margin:4px 0 0;">"Leer datos con IA" toma una foto de INE/CURP/comprobante y llena solos los campos de arriba. Revisa siempre lo extraído antes de guardar.</p>
 
     <div id="ec-doc-list" style="margin-top:10px;">${renderDocs(docs)}</div>
 
@@ -752,6 +756,67 @@ async function guardarDatosTrabajador() {
 function docMsg(texto, color) {
   const m = document.getElementById('ec-doc-msg');
   if (m) { m.textContent = texto || ''; m.style.color = color || 'rgba(10,14,26,0.6)'; }
+}
+
+// Lee un documento (INE/CURP/comprobante) con IA y llena los campos del expediente.
+async function leerDocumentoIA() {
+  const input = document.getElementById('doc-file');
+  const tipo = document.getElementById('doc-tipo')?.value || 'Otro';
+  const file = input?.files?.[0];
+  if (!file) { docMsg('Elige una foto del documento primero.', '#c0392b'); return; }
+  if (!file.type.startsWith('image/')) {
+    docMsg('Por ahora la lectura con IA solo funciona con fotos (imágenes), no PDF.', '#c0392b'); return;
+  }
+  if (file.size > 5 * 1024 * 1024) { docMsg('La foto es muy grande para leer (máx. 5 MB).', '#c0392b'); return; }
+
+  docMsg('✨ Leyendo el documento con IA…');
+  try {
+    const base64 = await archivoABase64(file);
+    const resp = await fetch('/.netlify/functions/leer-documento', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: base64, mediaType: file.type, docType: tipo }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.error || 'No se pudo leer el documento.');
+    }
+    const n = volcarDatosLeidos(data.datos);
+    if (n === 0) {
+      docMsg('La IA no reconoció datos claros. Intenta con una foto más nítida o captura a mano.', '#c0392b');
+    } else {
+      docMsg(`✓ ${n} dato(s) leídos y colocados arriba. Revísalos y toca "Guardar datos".`, '#1b8a5a');
+    }
+  } catch (e) {
+    console.warn('Lectura IA falló', e);
+    docMsg('No se pudo leer: ' + (e.message || ''), '#c0392b');
+  }
+}
+
+function archivoABase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1]); // quitar el prefijo data:...
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+// Coloca los datos leídos en los campos del expediente (sin sobrescribir lo ya escrito).
+function volcarDatosLeidos(d) {
+  if (!d) return 0;
+  const mapa = {
+    full_name: 'd-nombre', curp: 'd-curp', rfc: 'd-rfc', nss: 'd-nss',
+    address: 'd-domicilio', birth_date: 'd-nacimiento',
+  };
+  let n = 0;
+  for (const [clave, id] of Object.entries(mapa)) {
+    const val = d[clave];
+    if (val == null || val === '') continue;
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) { el.value = String(val); n++; }
+  }
+  return n;
 }
 
 async function subirDocumento() {

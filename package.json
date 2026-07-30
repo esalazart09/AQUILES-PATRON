@@ -1,0 +1,9 @@
+{
+  "name": "aquiles-patron",
+  "version": "1.0.0",
+  "description": "AQUILES Patrón — blindaje laboral. Funciones de servidor (lectura de documentos con IA).",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1"
+  }
+}
