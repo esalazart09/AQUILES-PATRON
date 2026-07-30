@@ -8,6 +8,12 @@
   # Carpeta que se publica = la raíz del repositorio (donde vive index.html).
   publish = "."
 
+# Carpeta donde viven las funciones de servidor (lectura de INE con IA, etc.)
+[functions]
+  directory = "netlify/functions"
+  # El SDK de Anthropic se instala solo al desplegar.
+  node_bundler = "esbuild"
+
 # --- Encabezados HTTP ---
 # El index.html NO debe cachearse de forma agresiva: así, cuando subas un
 # cambio, los usuarios ven la versión nueva de inmediato y no una vieja guardada.
