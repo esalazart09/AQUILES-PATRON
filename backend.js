@@ -358,26 +358,43 @@ function ensureCompany() {
   _aprovisionando = (async () => {
     miEmpresa = null; miEmpresaNombre = ''; empresaError = null;
     if (!sb || !sesion) return;
+    const uid = sesion.user.id;
     try {
-      // ¿Ya tiene perfil/empresa?
+      // 1) ¿Ya tiene perfil con empresa?
       const prof = await sb.from('profiles')
-        .select('company_id').eq('id', sesion.user.id).maybeSingle();
+        .select('company_id').eq('id', uid).maybeSingle();
       if (prof.error) throw prof.error;
 
       if (prof.data && prof.data.company_id) {
         miEmpresa = prof.data.company_id;
-        const c = await sb.from('companies').select('name').eq('id', miEmpresa).maybeSingle();
-        miEmpresaNombre = (c.data && c.data.name) || 'Mi empresa';
       } else {
-        // Primera vez: crear empresa en blanco + perfil.
-        const ins = await sb.from('companies').insert([{ name: 'Mi empresa' }])
-          .select('id,name').single();
-        if (ins.error) throw ins.error;
-        miEmpresa = ins.data.id;
-        miEmpresaNombre = ins.data.name;
-        const p = await sb.from('profiles').insert([{ id: sesion.user.id, company_id: miEmpresa, role: 'admin' }]);
+        // 2) Auto-reparación: ¿ya tengo una empresa propia (de un intento previo)?
+        // Así evitamos crear empresas huérfanas duplicadas.
+        const previa = await sb.from('companies')
+          .select('id,name').eq('owner_id', uid)
+          .order('created_at', { ascending: true }).limit(1).maybeSingle();
+        if (previa.error) throw previa.error;
+
+        if (previa.data && previa.data.id) {
+          miEmpresa = previa.data.id;
+        } else {
+          // 3) Primera vez real: crear la empresa en blanco.
+          const ins = await sb.from('companies').insert([{ name: 'Mi empresa' }])
+            .select('id,name').single();
+          if (ins.error) throw ins.error;
+          miEmpresa = ins.data.id;
+        }
+
+        // 4) Ligar el perfil a la empresa de forma idempotente (upsert).
+        //    Si el perfil ya existía sin empresa, lo actualiza; si no, lo crea.
+        const p = await sb.from('profiles')
+          .upsert({ id: uid, company_id: miEmpresa, role: 'admin' }, { onConflict: 'id' });
         if (p.error) throw p.error;
       }
+
+      // 5) Nombre para mostrar (ya con la empresa resuelta).
+      const c = await sb.from('companies').select('name').eq('id', miEmpresa).maybeSingle();
+      miEmpresaNombre = (c.data && c.data.name) || 'Mi empresa';
     } catch (e) {
       console.warn('No se pudo preparar la empresa.', e);
       const partes = [];
