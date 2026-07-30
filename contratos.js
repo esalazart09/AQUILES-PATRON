@@ -196,6 +196,8 @@ function _abrirContratoImprimible(htmlContrato, titulo) {
 
 /* ---------- Flujo: elegir trabajador y generar ---------- */
 
+let _empsContrato = []; // cache de trabajadores para el pre-llenado
+
 async function abrirGenerarContrato() {
   if (!sb || !sesion || !miEmpresa) { alert('Inicia sesión para generar contratos.'); return; }
   const ov = document.getElementById('contrato-overlay');
@@ -209,6 +211,7 @@ async function abrirGenerarContrato() {
     const r = await sb.from('employees').select('*').order('full_name', { ascending: true });
     if (r.error) throw r.error;
     emps = r.data || [];
+    _empsContrato = emps; // guardar para pre-llenado al cambiar de trabajador
   } catch (e) {
     card.innerHTML = `<p style="color:#c0392b;font-size:13px;">No se pudieron cargar los trabajadores: ${_esc(e.message || '')}</p>
       <div style="margin-top:14px;"><button class="gen-btn" onclick="cerrarGenerarContrato()">Cerrar</button></div>`;
@@ -230,9 +233,13 @@ async function abrirGenerarContrato() {
     <p style="font-size:12px;color:rgba(10,14,26,0.55);margin:0 0 6px;">Contrato individual de trabajo por tiempo indeterminado.</p>
 
     <label style="${lbl}">Trabajador</label>
-    <select id="ct-emp" style="${inp}background:#fff;">${opciones}</select>
+    <select id="ct-emp" style="${inp}background:#fff;" onchange="prellenarDesdeTrabajador()">${opciones}</select>
 
     <div style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent-deep,#0a0e1a);font-weight:700;margin:16px 0 2px;">Datos de este contrato</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div><label style="${lbl}">Antigüedad — fecha de ingreso</label><input id="ct-ingreso" type="date" style="${inp}" /></div>
+      <div><label style="${lbl}">Frecuencia de pago</label><input id="ct-periodo" style="${inp}" placeholder="(diaria, semanal, catorcenal, quincenal, mensual, a convenio)" /></div>
+    </div>
     <label style="${lbl}">Lugar de trabajo</label>
     <input id="ct-lugar" style="${inp}" placeholder="Domicilio o sucursal donde laborará" />
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -253,6 +260,19 @@ async function abrirGenerarContrato() {
     </div>
     <p style="font-size:11px;color:rgba(10,14,26,0.5);margin-top:10px;">Se abrirá el contrato lleno en una pestaña nueva, listo para imprimir o guardar como PDF. Los datos que falten aparecerán marcados en rojo para completarlos a mano.</p>
   `;
+
+  prellenarDesdeTrabajador(); // pre-llenar con el primer trabajador de la lista
+}
+
+// Pre-llena antigüedad y frecuencia de pago con los datos del trabajador elegido.
+function prellenarDesdeTrabajador() {
+  const id = document.getElementById('ct-emp')?.value;
+  const emp = (_empsContrato || []).find(e => e.id === id);
+  if (!emp) return;
+  const ingreso = document.getElementById('ct-ingreso');
+  const periodo = document.getElementById('ct-periodo');
+  if (ingreso && emp.hire_date) ingreso.value = emp.hire_date;
+  if (periodo && emp.pay_period) periodo.value = emp.pay_period;
 }
 
 function cerrarGenerarContrato() {
@@ -282,6 +302,14 @@ async function generarContratoDoc() {
   if (!emp) { if (msg) { msg.textContent = 'Trabajador no encontrado.'; msg.style.color = '#c0392b'; } return; }
 
   const val = id => (document.getElementById(id)?.value || '').trim();
+
+  // La antigüedad y la frecuencia de pago se toman del formulario (editables
+  // aquí), no solo de la ficha, para que este contrato quede como se firma.
+  const ingreso = val('ct-ingreso');
+  const periodo = val('ct-periodo');
+  if (ingreso) emp.hire_date = ingreso;
+  if (periodo) emp.pay_period = periodo;
+
   const x = {
     lugar_trabajo: val('ct-lugar'),
     horario: val('ct-horario'),
