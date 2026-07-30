@@ -549,17 +549,20 @@ function aplicarVistaEmpleados() {
   const banner = document.getElementById('emp-demo-banner');
   const real = document.getElementById('emp-real');
   const navEmpresa = document.getElementById('nav-empresa');
+  const navContrato = document.getElementById('nav-contrato');
   if (sesion) {
     if (demo) demo.style.display = 'none';
     if (banner) banner.style.display = 'none';
     if (real) real.style.display = 'block';
     if (navEmpresa) navEmpresa.style.display = '';
+    if (navContrato) navContrato.style.display = '';
     cargarTrabajadores();
   } else {
     if (demo) demo.style.display = '';
     if (banner) banner.style.display = '';
     if (real) real.style.display = 'none';
     if (navEmpresa) navEmpresa.style.display = 'none';
+    if (navContrato) navContrato.style.display = 'none';
   }
 }
 
