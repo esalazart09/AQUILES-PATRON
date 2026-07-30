@@ -465,12 +465,7 @@ function renderEmpleadosReales(lista) {
           <span style="font-size:14px;color:rgba(10,14,26,0.55);">$</span>
           <input id="nt-pago" type="number" min="0" step="0.01" placeholder="Pago diario" style="${estiloInput}flex:1;" />
         </div>
-        <select id="nt-periodo" style="${estiloInput}flex:1;min-width:150px;background:#fff;">
-          <option value="">Periodo de pago…</option>
-          <option value="Diario">Pago diario</option>
-          <option value="Semanal">Pago semanal</option>
-          <option value="Quincenal">Pago quincenal</option>
-        </select>
+        <input id="nt-periodo" style="${estiloInput}flex:1;min-width:150px;" placeholder="Frecuencia (diaria, semanal, catorcenal, quincenal, mensual, a convenio)" />
       </div>
       <div id="nt-msg" style="font-size:12px;color:#c0392b;min-height:14px;margin-top:8px;"></div>
       <button class="gen-btn" onclick="guardarTrabajador()">Guardar trabajador</button>
@@ -644,7 +639,6 @@ async function abrirTrabajador(empId) {
   if (!emp) { cerrarTrabajador(); return; }
 
   const v = s => escapaHtml(s == null ? '' : String(s));
-  const opt = (val) => (p => `<option value="${p}" ${p === (emp.pay_period || '') ? 'selected' : ''}>${p || 'Periodo de pago…'}</option>`)(val);
 
   card.innerHTML = `
     <h3>${v(emp.full_name)}</h3>
@@ -659,11 +653,7 @@ async function abrirTrabajador(empId) {
     <textarea id="d-actividades" rows="2">${v(emp.activities)}</textarea>
     <div class="ec-grid">
       <div><label>Pago diario ($)</label><input id="d-pago" type="number" min="0" step="0.01" value="${v(emp.daily_pay)}" /></div>
-      <div><label>Periodo de pago</label>
-        <select id="d-periodo">
-          ${['', 'Diario', 'Semanal', 'Quincenal'].map(opt).join('')}
-        </select>
-      </div>
+      <div><label>Frecuencia de pago</label><input id="d-periodo" value="${v(emp.pay_period)}" placeholder="(diaria, semanal, catorcenal, quincenal, mensual, a convenio)" /></div>
     </div>
 
     <div class="ec-section-title">Datos legales (para contratos)</div>
