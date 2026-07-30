@@ -531,15 +531,18 @@ function aplicarVistaEmpleados() {
   const demo = document.getElementById('emp-table-demo');
   const banner = document.getElementById('emp-demo-banner');
   const real = document.getElementById('emp-real');
+  const navEmpresa = document.getElementById('nav-empresa');
   if (sesion) {
     if (demo) demo.style.display = 'none';
     if (banner) banner.style.display = 'none';
     if (real) real.style.display = 'block';
+    if (navEmpresa) navEmpresa.style.display = '';
     cargarTrabajadores();
   } else {
     if (demo) demo.style.display = '';
     if (banner) banner.style.display = '';
     if (real) real.style.display = 'none';
+    if (navEmpresa) navEmpresa.style.display = 'none';
   }
 }
 
@@ -649,6 +652,9 @@ async function abrirTrabajador(empId) {
       <div><label>RFC</label><input id="d-rfc" value="${v(emp.rfc)}" /></div>
       <div><label>NSS (IMSS)</label><input id="d-nss" value="${v(emp.nss)}" /></div>
       <div><label>Fecha de nacimiento</label><input id="d-nacimiento" type="date" value="${v(emp.birth_date)}" /></div>
+      <div><label>Nacionalidad</label><input id="d-nacionalidad" value="${v(emp.nationality)}" placeholder="Mexicana" /></div>
+      <div><label>Estado civil</label><input id="d-civil" value="${v(emp.civil_status)}" placeholder="Soltero(a) / Casado(a)" /></div>
+      <div><label>Fecha de ingreso (antigüedad)</label><input id="d-ingreso" type="date" value="${v(emp.hire_date)}" /></div>
     </div>
     <label>Domicilio</label>
     <input id="d-domicilio" value="${v(emp.address)}" />
@@ -719,6 +725,9 @@ async function guardarDatosTrabajador() {
       rfc: val('d-rfc') || null,
       nss: val('d-nss') || null,
       birth_date: val('d-nacimiento') || null,
+      nationality: val('d-nacionalidad') || null,
+      civil_status: val('d-civil') || null,
+      hire_date: val('d-ingreso') || null,
       address: val('d-domicilio') || null,
     }).eq('id', empActual);
     if (error) throw error;
@@ -799,4 +808,137 @@ async function eliminarDocumento(docId, path) {
 window.addEventListener('DOMContentLoaded', () => {
   const ov = document.getElementById('emp-overlay');
   if (ov) ov.addEventListener('click', e => { if (e.target === ov) cerrarTrabajador(); });
+  const ov2 = document.getElementById('empresa-overlay');
+  if (ov2) ov2.addEventListener('click', e => { if (e.target === ov2) cerrarDatosEmpresa(); });
 });
+
+/* ============================================================
+   10. DATOS DE LA EMPRESA (patrón) para contratos
+   Captura una vez: razón social, RFC, domicilio fiscal, registro
+   patronal, representante legal y datos de escrituras. Se guardan
+   en la tabla companies (una fila por empresa).
+   ============================================================ */
+
+function cerrarDatosEmpresa() {
+  const ov = document.getElementById('empresa-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+async function abrirDatosEmpresa() {
+  if (!sb || !sesion) return;
+  const ov = document.getElementById('empresa-overlay');
+  const card = document.getElementById('empresa-card');
+  if (!ov || !card) return;
+  card.innerHTML = '<p style="font-size:12px;color:rgba(10,14,26,0.55);">Cargando…</p>';
+  ov.style.display = 'flex';
+
+  if (!miEmpresa) {
+    card.innerHTML = `
+      <h3 style="font-family:'Fraunces',serif;font-weight:500;font-size:21px;margin:0 0 8px;">Datos de la empresa</h3>
+      <p style="font-size:13px;color:#c0392b;">Tu espacio aún no está listo. Falta preparar la base de datos en Supabase.</p>
+      <div style="margin-top:16px;"><button class="gen-btn" onclick="cerrarDatosEmpresa()">Cerrar</button></div>`;
+    return;
+  }
+
+  let c = {};
+  try {
+    const r = await sb.from('companies').select('*').eq('id', miEmpresa).maybeSingle();
+    if (r.error) throw r.error;
+    c = r.data || {};
+  } catch (e) {
+    card.innerHTML = `<p style="font-size:13px;color:#c0392b;">No se pudieron cargar los datos: ${escapaHtml(e.message || '')}</p>
+      <div style="margin-top:16px;"><button class="gen-btn" onclick="cerrarDatosEmpresa()">Cerrar</button></div>`;
+    return;
+  }
+
+  const v = s => escapaHtml(s == null ? '' : String(s));
+  const inp = 'width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid rgba(10,14,26,0.18);border-radius:8px;font-size:13.5px;font-family:inherit;';
+  const lbl = 'display:block;font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;color:rgba(10,14,26,0.55);margin:11px 0 4px;';
+  const tit = 'font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent-deep,#0a0e1a);font-weight:700;margin:18px 0 2px;';
+  const field = (id, label, val, type) => `<label style="${lbl}">${label}</label><input id="${id}" ${type ? `type="${type}"` : ''} style="${inp}" value="${v(val)}" />`;
+
+  card.innerHTML = `
+    <h3 style="font-family:'Fraunces',serif;font-weight:500;font-size:21px;margin:0 0 2px;">Datos de la empresa</h3>
+    <p style="font-size:12px;color:rgba(10,14,26,0.55);margin:0 0 4px;">Se capturan una vez y aparecen en todos los contratos.</p>
+
+    <div style="${tit}">Identidad</div>
+    ${field('em-name', 'Razón social (nombre de la empresa)', c.name === 'Mi empresa' ? '' : c.name)}
+    ${field('em-rfc', 'RFC de la empresa', c.rfc)}
+    ${field('em-imss', 'Registro patronal IMSS', c.imss_registro)}
+    <label style="${lbl}">Domicilio fiscal</label>
+    <textarea id="em-address" rows="2" style="${inp}resize:vertical;">${v(c.fiscal_address)}</textarea>
+    ${field('em-juris', 'Jurisdicción para tribunales (estado, municipio)', c.jurisdiction)}
+
+    <div style="${tit}">Representante legal</div>
+    ${field('em-rep', 'Nombre del representante legal', c.legal_rep_name)}
+    ${field('em-reprole', 'Carácter (apoderado, administrador único, etc.)', c.legal_rep_role)}
+
+    <details style="margin-top:16px;">
+      <summary style="cursor:pointer;font-size:12px;color:var(--accent-deep,#0a0e1a);font-weight:600;">▸ Datos de escrituras (opcional, para el contrato completo)</summary>
+      <div style="${tit}">Escritura de constitución de la sociedad</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>${field('em-cesc', 'No. de escritura', c.const_escritura)}</div>
+        <div>${field('em-cfecha', 'Fecha (día/mes/año)', c.const_fecha)}</div>
+        <div>${field('em-cnotario', 'Notario público (nombre)', c.const_notario)}</div>
+        <div>${field('em-cnotaria', 'No. de notaría', c.const_notaria)}</div>
+        <div>${field('em-cciudad', 'Ciudad/estado del notario', c.const_ciudad)}</div>
+        <div>${field('em-cfolio', 'Folio mercantil (RPPC)', c.const_folio)}</div>
+      </div>
+      <div style="${tit}">Escritura del poder del representante</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>${field('em-resc', 'No. de escritura', c.rep_escritura)}</div>
+        <div>${field('em-rfecha', 'Fecha (día/mes/año)', c.rep_fecha)}</div>
+        <div>${field('em-rnotario', 'Notario público (nombre)', c.rep_notario)}</div>
+        <div>${field('em-rnotaria', 'No. de notaría', c.rep_notaria)}</div>
+        <div>${field('em-rciudad', 'Ciudad/estado del notario', c.rep_ciudad)}</div>
+      </div>
+    </details>
+
+    <div id="em-msg" style="font-size:12px;min-height:14px;margin-top:12px;"></div>
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <button class="gen-btn" onclick="guardarDatosEmpresa()">Guardar datos</button>
+      <button class="gen-btn ghost" onclick="cerrarDatosEmpresa()">Cerrar</button>
+    </div>
+  `;
+}
+
+async function guardarDatosEmpresa() {
+  if (!sb || !sesion || !miEmpresa) return;
+  const val = id => (document.getElementById(id)?.value || '').trim();
+  const msg = document.getElementById('em-msg');
+  const nombre = val('em-name');
+  if (!nombre) {
+    if (msg) { msg.textContent = 'Escribe al menos la razón social (nombre de la empresa).'; msg.style.color = '#c0392b'; }
+    return;
+  }
+  if (msg) { msg.textContent = 'Guardando…'; msg.style.color = 'rgba(10,14,26,0.6)'; }
+  try {
+    const { error } = await sb.from('companies').update({
+      name: nombre,
+      rfc: val('em-rfc') || null,
+      imss_registro: val('em-imss') || null,
+      fiscal_address: val('em-address') || null,
+      jurisdiction: val('em-juris') || null,
+      legal_rep_name: val('em-rep') || null,
+      legal_rep_role: val('em-reprole') || null,
+      const_escritura: val('em-cesc') || null,
+      const_fecha: val('em-cfecha') || null,
+      const_notario: val('em-cnotario') || null,
+      const_notaria: val('em-cnotaria') || null,
+      const_ciudad: val('em-cciudad') || null,
+      const_folio: val('em-cfolio') || null,
+      rep_escritura: val('em-resc') || null,
+      rep_fecha: val('em-rfecha') || null,
+      rep_notario: val('em-rnotario') || null,
+      rep_notaria: val('em-rnotaria') || null,
+      rep_ciudad: val('em-rciudad') || null,
+    }).eq('id', miEmpresa);
+    if (error) throw error;
+    miEmpresaNombre = nombre;
+    aplicarNombreEmpresa();
+    if (msg) { msg.textContent = '✓ Datos guardados'; msg.style.color = '#1b8a5a'; }
+  } catch (e) {
+    console.warn('No se pudieron guardar los datos de la empresa.', e);
+    if (msg) { msg.textContent = 'No se pudo guardar: ' + (e.message || ''); msg.style.color = '#c0392b'; }
+  }
+}

@@ -2187,6 +2187,11 @@ body::before {
   <div id="emp-card"><!-- contenido generado por backend.js --></div>
 </div>
 
+<!-- ============ DATOS DE LA EMPRESA (patrón) ============ -->
+<div id="empresa-overlay" style="position:fixed;inset:0;z-index:9001;display:none;background:rgba(10,14,26,0.72);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div id="empresa-card" style="width:100%;max-width:560px;background:var(--paper);margin:24px 0;border-radius:14px;padding:26px 24px;box-shadow:0 30px 80px -20px rgba(10,14,26,0.6);font-family:'Inter',system-ui,sans-serif;"><!-- generado por backend.js --></div>
+</div>
+
 <div id="screen-home" class="app-screen active">
   <div class="home-brand">
     <span class="mark">AQUILES <em style="font-style:italic; color:var(--paper); font-weight:400;">Patrón</em></span>
@@ -2598,6 +2603,7 @@ body::before {
       <div class="nav-item" onclick="openActa()"><span class="ni-glyph">v</span> Actas</div>
       <div class="nav-item" onclick="openExport()"><span class="ni-glyph">vi</span> Exportar expediente</div>
       <div class="side-sep"></div>
+      <div class="nav-item" id="nav-empresa" onclick="abrirDatosEmpresa()" style="display:none;"><span class="ni-glyph">⚙</span> Datos de la empresa</div>
       <div class="nav-item" onclick="showScreen('screen-home')"><span class="ni-glyph">←</span> Salir</div>
     </aside>
 
@@ -4009,7 +4015,7 @@ function doInstall() {
 </script>
 
 <!-- Backend real (Etapa 2): conexión a Supabase y guardado de eventos -->
-<script src="backend.js?v=9"></script>
+<script src="backend.js?v=10"></script>
 
 </body>
 </html>
