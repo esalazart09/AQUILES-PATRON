@@ -191,10 +191,10 @@ async function abrirFiniquito() {
 function renderFormFiniquito() {
   const card = document.getElementById('finiquito-card');
   if (!card) return;
-  const inp = 'width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid rgba(10,14,26,0.18);border-radius:8px;font-size:13.5px;font-family:inherit;';
-  const lbl = 'display:block;font-size:12px;font-weight:600;color:var(--ink,#14192a);margin:12px 0 2px;';
-  const help = 'display:block;font-size:11px;color:rgba(10,14,26,0.5);margin:0 0 5px;';
-  const tit = 'font-family:Fraunces,serif;font-size:15px;font-weight:600;color:var(--accent-deep,#0a0e1a);margin:20px 0 2px;padding-top:14px;border-top:1px solid rgba(10,14,26,0.1);';
+  const inp = 'width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid rgba(10,14,26,0.18);border-radius:8px;font-size:13.5px;font-family:inherit;color:#14192a;background:#ffffff;';
+  const lbl = 'display:block;font-size:12px;font-weight:600;color:#14192a;margin:12px 0 2px;';
+  const help = 'display:block;font-size:11px;color:#5a5346;margin:0 0 5px;';
+  const tit = 'font-family:Fraunces,serif;font-size:15px;font-weight:600;color:#8a5a1e;margin:20px 0 2px;padding-top:14px;border-top:1px solid rgba(10,14,26,0.1);';
   const ops = _fqEmps.map(e => `<option value="${e.id}">${_fqEsc(e.full_name)}${e.position ? ' · ' + _fqEsc(e.position) : ''}</option>`).join('');
 
   // Campo numérico con pregunta + ayuda
@@ -247,9 +247,15 @@ function renderFormFiniquito() {
     <div style="${tit}">Datos para el cálculo legal</div>
     ${campo('fq-aguinaldo', 'Días de aguinaldo que da tu empresa', 'La ley marca mínimo 15. Si das más, ponlo.', 15)}
     ${campo('fq-jornada', 'Horas de la jornada diaria', 'Normalmente 8. Se usa para calcular las horas extra.', 8)}
+    <label style="${lbl}">Zona (para el salario mínimo)</label>
+    <span style="${help}">Se usa para topar la prima de antigüedad. Al elegir la zona, se pone solo el salario mínimo vigente 2026.</span>
+    <select id="fq-zona" style="${inp}background:#fff;" onchange="fqAplicarZona()">
+      <option value="315.04">General (resto del país) — $315.04/día</option>
+      <option value="440.87">Zona Libre de la Frontera Norte — $440.87/día</option>
+    </select>
     <label style="${lbl}">Salario mínimo diario vigente ($)</label>
-    <span style="${help}">Se usa para topar la prima de antigüedad. 2026: $278.80 (o $419.88 en la frontera norte).</span>
-    <input id="fq-salmin" type="number" min="0" step="0.01" style="${inp}" value="278.80" />
+    <span style="${help}">Se llena solo según la zona. Puedes ajustarlo si cambia.</span>
+    <input id="fq-salmin" type="number" min="0" step="0.01" style="${inp}" value="315.04" />
 
     <div id="fq-msg" style="font-size:12px;min-height:14px;margin-top:12px;color:rgba(10,14,26,0.6);"></div>
     <div style="display:flex;gap:10px;margin-top:4px;">
@@ -269,6 +275,13 @@ function prellenarFiniquito() {
   const set = (elId, val) => { const el = document.getElementById(elId); if (el && val != null && el.value === '') el.value = val; };
   if (emp.hire_date) { const el = document.getElementById('fq-ingreso'); if (el) el.value = emp.hire_date; }
   if (emp.daily_pay != null) { const el = document.getElementById('fq-saldiario'); if (el) el.value = emp.daily_pay; }
+}
+
+// Al elegir zona, pone el salario mínimo vigente 2026 en el campo.
+function fqAplicarZona() {
+  const z = document.getElementById('fq-zona')?.value;
+  const el = document.getElementById('fq-salmin');
+  if (z && el) el.value = z;
 }
 
 function fqAvisoMotivo() {
