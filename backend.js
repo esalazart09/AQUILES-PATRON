@@ -545,12 +545,14 @@ function aplicarVistaEmpleados() {
   const real = document.getElementById('emp-real');
   const navEmpresa = document.getElementById('nav-empresa');
   const navContrato = document.getElementById('nav-contrato');
+  const navFiniquito = document.getElementById('nav-finiquito');
   if (sesion) {
     if (demo) demo.style.display = 'none';
     if (banner) banner.style.display = 'none';
     if (real) real.style.display = 'block';
     if (navEmpresa) navEmpresa.style.display = '';
     if (navContrato) navContrato.style.display = '';
+    if (navFiniquito) navFiniquito.style.display = '';
     cargarTrabajadores();
   } else {
     if (demo) demo.style.display = '';
@@ -558,6 +560,7 @@ function aplicarVistaEmpleados() {
     if (real) real.style.display = 'none';
     if (navEmpresa) navEmpresa.style.display = 'none';
     if (navContrato) navContrato.style.display = 'none';
+    if (navFiniquito) navFiniquito.style.display = 'none';
   }
 }
 
