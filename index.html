@@ -3435,7 +3435,10 @@ body::before {
       <div class="checador-clock" id="checador-clock">09:02:11</div>
       <div class="checador-date" id="checador-date">jueves 7 de mayo, 2026</div>
       <div class="checador-prompt">Toca tu <em>nombre</em> para checar</div>
-      <div class="checador-emp-grid">
+      <!-- Trabajadores REALES (con sesión) -->
+      <div id="checador-real" style="display:none;"></div>
+      <!-- Parrilla DEMO (sin sesión) -->
+      <div class="checador-emp-grid" id="checador-demo-grid">
         <div class="checador-emp" onclick="doCheck('Roberto Méndez','RM','entrada','09:02','retardo')">
           <div class="ce-av">RM</div><div class="ce-name">Roberto M.</div>
         </div>
@@ -3705,6 +3708,8 @@ function resetChecador() {
   const done = document.getElementById('checador-done');
   if (sel) sel.style.display = 'block';
   if (done) done.style.display = 'none';
+  // Si hay checador real cargado, refrescar la lista.
+  if (typeof checadorAlAbrir === 'function' && typeof sesion !== 'undefined' && sesion) checadorAlAbrir();
 }
 
 /* ============ GENERADOR DE CONTRATOS ============ */
@@ -4037,6 +4042,7 @@ function doInstall() {
 <script src="contratos.js?v=2"></script>
 <script src="finiquito.js?v=3"></script>
 <script src="terminacion.js?v=1"></script>
+<script src="checador.js?v=1"></script>
 
 </body>
 </html>
