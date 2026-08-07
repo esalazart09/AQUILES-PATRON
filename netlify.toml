@@ -39,6 +39,11 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+[[headers]]
+  for = "/terminacion.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Encabezados de seguridad básicos para todo el sitio.
 [[headers]]
   for = "/*"
