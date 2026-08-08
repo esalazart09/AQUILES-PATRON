@@ -3487,6 +3487,11 @@ body::before {
   </div>
 </div>
 
+<!-- Overlay: link de firma listo -->
+<div id="firma-link-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,14,26,0.55);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+  <div id="firma-link-card" style="background:#f4f1ea;border-radius:14px;padding:24px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);"></div>
+</div>
+
 <!-- Banner de instalación PWA -->
 <div class="install-hint" id="install-hint">
   <span>Instala AQUILES Patrón en tu dispositivo</span>
@@ -4043,6 +4048,7 @@ function doInstall() {
 <script src="finiquito.js?v=3"></script>
 <script src="terminacion.js?v=1"></script>
 <script src="checador.js?v=1"></script>
+<script src="firma-cliente.js?v=1"></script>
 
 </body>
 </html>

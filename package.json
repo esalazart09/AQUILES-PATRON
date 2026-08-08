@@ -4,6 +4,7 @@
   "description": "AQUILES Patrón — blindaje laboral. Funciones de servidor (lectura de documentos con IA).",
   "private": true,
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1"
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@supabase/supabase-js": "^2.45.0"
   }
 }

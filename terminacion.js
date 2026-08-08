@@ -279,7 +279,31 @@ async function generarTerminacion() {
   else { html = _plantillaAvisoRescision(emp, co, x); titulo = `Aviso de rescisión — ${emp.full_name}`; }
 
   _abrirDocTerminacion(html, titulo);
-  if (msg) { msg.textContent = '✓ Documento generado en una pestaña nueva.'; msg.style.color = '#1b8a5a'; }
+  _ultTerminacion = { empId, docTipo: tipo, titulo, html };
+  if (msg) {
+    // La renuncia la firma el trabajador; el convenio también. El aviso de
+    // rescisión normalmente lo firma el patrón, pero se ofrece igual.
+    msg.innerHTML = '✓ Documento generado en una pestaña nueva. ' +
+      '<button class="gen-btn" style="margin-top:10px;" onclick="enviarTerminacionAFirmar()">✍️ Enviar a firmar</button>';
+    msg.style.color = '#1b8a5a';
+  }
+}
+
+let _ultTerminacion = null;
+async function enviarTerminacionAFirmar() {
+  if (!_ultTerminacion) return;
+  const msg = document.getElementById('t-msg');
+  try {
+    if (msg) { msg.textContent = 'Creando link de firma…'; msg.style.color = 'rgba(10,14,26,0.6)'; }
+    const { url } = await crearSolicitudFirma({
+      empId: _ultTerminacion.empId, docTipo: _ultTerminacion.docTipo,
+      docTitulo: _ultTerminacion.titulo, docHtml: _ultTerminacion.html,
+    });
+    cerrarTerminacion();
+    mostrarLinkFirma(url, _ultTerminacion.titulo);
+  } catch (e) {
+    if (msg) { msg.textContent = 'No se pudo crear el link: ' + (e.message || ''); msg.style.color = '#c0392b'; }
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {

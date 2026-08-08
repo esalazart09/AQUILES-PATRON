@@ -323,7 +323,30 @@ async function generarContratoDoc() {
 
   const html = _plantillaIndeterminado(emp, co, x);
   _abrirContratoImprimible(html, `Contrato — ${emp.full_name}`);
-  if (msg) { msg.textContent = '✓ Contrato generado en una pestaña nueva.'; msg.style.color = '#1b8a5a'; }
+  // Guardar el último documento para poder enviarlo a firmar.
+  _ultContrato = { empId, titulo: `Contrato — ${emp.full_name}`, html };
+  if (msg) {
+    msg.innerHTML = '✓ Contrato generado en una pestaña nueva. ' +
+      '<button class="gen-btn" style="margin-top:10px;" onclick="enviarContratoAFirmar()">✍️ Enviar a firmar</button>';
+    msg.style.color = '#1b8a5a';
+  }
+}
+
+let _ultContrato = null;
+async function enviarContratoAFirmar() {
+  if (!_ultContrato) return;
+  const msg = document.getElementById('ct-msg');
+  try {
+    if (msg) { msg.textContent = 'Creando link de firma…'; msg.style.color = 'rgba(10,14,26,0.6)'; }
+    const { url } = await crearSolicitudFirma({
+      empId: _ultContrato.empId, docTipo: 'contrato',
+      docTitulo: _ultContrato.titulo, docHtml: _ultContrato.html,
+    });
+    cerrarGenerarContrato();
+    mostrarLinkFirma(url, _ultContrato.titulo);
+  } catch (e) {
+    if (msg) { msg.textContent = 'No se pudo crear el link: ' + (e.message || ''); msg.style.color = '#c0392b'; }
+  }
 }
 
 // Cerrar al tocar fuera

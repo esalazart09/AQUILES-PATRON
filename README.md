@@ -44,3 +44,29 @@ python3 -m http.server 8000
 
 Sitio estático en **Netlify** con publicación automática desde GitHub.
 La configuración vive en `netlify.toml` (sin build command, publica la raíz).
+
+### Variables de entorno (Netlify → Site settings → Environment variables)
+
+| Variable | Para qué | Obligatoria |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Lectura de documentos con IA | Solo para IA |
+| `SUPABASE_URL` | URL del proyecto Supabase | Recomendada |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Firma electrónica** (función `firma`) | Sí, para firmar |
+
+> La `SUPABASE_SERVICE_ROLE_KEY` está en Supabase → Project Settings → API →
+> "service_role". Es **secreta**: solo vive en el servidor de Netlify, nunca en
+> el navegador.
+
+### Firma electrónica (aviso legal)
+
+La firma del link es una **firma electrónica simple con valor probatorio**
+(registra correo, fecha/hora, IP, dispositivo y hash del documento). **No es
+una constancia NOM-151.** Emitir NOM-151 requiere ser PSC acreditado ante la
+Secretaría de Economía (notario/corredor o persona moral con acreditación
+formal), lo cual no es viable de forma "propia"; para NOM-151 se contrata a un
+PSC ya autorizado. Eso queda como opción premium de Etapa 3.
+
+### SQL pendiente
+
+Corre en el SQL Editor de Supabase, en orden: `db/08_checador.sql`,
+`db/09_firmas.sql`.
