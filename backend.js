@@ -575,6 +575,60 @@ async function aplicarSesion() {
   aplicarVistaEmpleados();
   const exp = document.getElementById('tab-timeline');
   if (sesion && exp) cargarEventosReales();
+  if (sesion) cargarMetricas();
+}
+
+// Llena las tarjetas del panel con datos reales de la empresa.
+async function cargarMetricas() {
+  if (!sb || !sesion || !miEmpresa) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  try {
+    // Empleados activos
+    const emps = await sb.from('employees').select('id,position');
+    if (!emps.error) {
+      const lista = emps.data || [];
+      set('mx-empleados', lista.length);
+      const conPuesto = lista.filter(e => e.position).length;
+      set('mx-empleados-sub', conPuesto ? `${conPuesto} con puesto definido` : 'registrados');
+    }
+
+    // Eventos del mes en curso
+    const inicioMes = new Date();
+    inicioMes.setDate(1); inicioMes.setHours(0, 0, 0, 0);
+    const ev = await sb.from('events').select('tipo,created_at').gte('created_at', inicioMes.toISOString());
+    if (!ev.error) {
+      const lista = ev.data || [];
+      set('mx-eventos', lista.length);
+      // Desglose por tipo (los 2 más frecuentes)
+      const conteo = {};
+      lista.forEach(e => { const t = (e.tipo || 'otros'); conteo[t] = (conteo[t] || 0) + 1; });
+      const top = Object.entries(conteo).sort((a, b) => b[1] - a[1]).slice(0, 2)
+        .map(([t, n]) => `${n} ${t}`).join(' · ');
+      set('mx-eventos-sub', top || 'sin eventos este mes');
+    }
+
+    // Documentos totales (subidos + generados + firmados)
+    const docs = await sb.from('documents').select('id,kind');
+    if (!docs.error) {
+      const lista = docs.data || [];
+      set('mx-docs', lista.length);
+      const gen = lista.filter(d => d.kind === 'generado' || d.kind === 'firmado').length;
+      set('mx-docs-sub', gen ? `${gen} generados por la app` : 'contratos, INE, finiquitos…');
+    }
+
+    // Checadas de hoy
+    const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
+    const ch = await sb.from('checadas').select('id,tipo').gte('marcada_at', inicioDia.toISOString());
+    if (!ch.error) {
+      const lista = ch.data || [];
+      set('mx-checadas', lista.length);
+      const entradas = lista.filter(c => c.tipo === 'entrada').length;
+      const salidas = lista.filter(c => c.tipo === 'salida').length;
+      set('mx-checadas-sub', lista.length ? `${entradas} entradas · ${salidas} salidas` : 'sin checadas hoy');
+    }
+  } catch (e) {
+    console.warn('No se pudieron cargar las métricas.', e);
+  }
 }
 
 // Mantener el estado de sesión sincronizado y la UI al día.
