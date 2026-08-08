@@ -69,4 +69,4 @@ PSC ya autorizado. Eso queda como opción premium de Etapa 3.
 ### SQL pendiente
 
 Corre en el SQL Editor de Supabase, en orden: `db/08_checador.sql`,
-`db/09_firmas.sql`.
+`db/09_firmas.sql`, `db/10_docs_generados.sql`.

@@ -284,8 +284,27 @@ async function generarTerminacion() {
     // La renuncia la firma el trabajador; el convenio también. El aviso de
     // rescisión normalmente lo firma el patrón, pero se ofrece igual.
     msg.innerHTML = '✓ Documento generado en una pestaña nueva. ' +
-      '<button class="gen-btn" style="margin-top:10px;" onclick="enviarTerminacionAFirmar()">✍️ Enviar a firmar</button>';
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' +
+      '<button class="gen-btn" onclick="guardarTerminacionExpediente()">💾 Guardar en expediente</button>' +
+      '<button class="gen-btn" onclick="enviarTerminacionAFirmar()">✍️ Enviar a firmar</button></div>';
     msg.style.color = '#1b8a5a';
+  }
+}
+
+async function guardarTerminacionExpediente() {
+  if (!_ultTerminacion) return;
+  const msg = document.getElementById('t-msg');
+  try {
+    if (msg) { msg.textContent = 'Guardando en el expediente…'; msg.style.color = 'rgba(10,14,26,0.6)'; }
+    const docType = _ultTerminacion.docTipo === 'convenio' ? 'Convenio de terminación'
+      : _ultTerminacion.docTipo === 'renuncia' ? 'Renuncia' : 'Aviso de rescisión';
+    await guardarDocGenerado({
+      empId: _ultTerminacion.empId, docType,
+      titulo: _ultTerminacion.titulo, html: _ultTerminacion.html, kind: 'generado',
+    });
+    if (msg) { msg.textContent = '✓ Documento guardado en el expediente del trabajador.'; msg.style.color = '#1b8a5a'; }
+  } catch (e) {
+    if (msg) { msg.textContent = 'No se pudo guardar: ' + (e.message || ''); msg.style.color = '#c0392b'; }
   }
 }
 

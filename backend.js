@@ -712,10 +712,15 @@ function renderDocs(docs) {
   if (!docs || docs.length === 0) {
     return '<p class="ec-sub" style="margin:0;">Aún no hay documentos. Sube el INE, CURP, etc.</p>';
   }
+  const badge = k => {
+    if (k === 'generado') return '<span style="font-size:9.5px;background:rgba(192,138,62,0.18);color:#8a5e1e;padding:1px 6px;border-radius:5px;margin-left:4px;">generado</span>';
+    if (k === 'firmado') return '<span style="font-size:9.5px;background:rgba(27,138,90,0.18);color:#137a4e;padding:1px 6px;border-radius:5px;margin-left:4px;">✍️ firmado</span>';
+    return '';
+  };
   return docs.map(d => `
     <div class="ec-doc">
-      <span style="font-weight:600;min-width:70px;">${escapaHtml(d.doc_type || 'Doc')}</span>
-      <span class="ecd-name">${escapaHtml(d.file_name || '')}</span>
+      <span style="font-weight:600;min-width:70px;">${escapaHtml(d.doc_type || 'Doc')}${badge(d.kind)}</span>
+      <span class="ecd-name">${escapaHtml(d.file_name || '')}${d.hash ? `<span style="font-size:9.5px;color:rgba(10,14,26,0.4);display:block;">hash ${escapaHtml((d.hash || '').slice(0, 12))}…</span>` : ''}</span>
       <button class="linklike" onclick="verDocumento('${escapaHtml(d.file_path)}')">Ver</button>
       <button class="linklike" style="color:#c0392b;" onclick="eliminarDocumento('${d.id}','${escapaHtml(d.file_path)}')">Borrar</button>
     </div>`).join('');
@@ -854,6 +859,43 @@ async function subirDocumento() {
     console.warn('No se pudo subir el documento.', e);
     docMsg('No se pudo subir: ' + (e.message || ''), '#c0392b');
   }
+}
+
+/*
+  Guarda un documento GENERADO por la app (contrato, finiquito, terminación)
+  en el expediente del trabajador: sube el HTML a Storage y registra su hash.
+  Uso global desde contratos.js / finiquito.js / terminacion.js.
+  opts = { empId, docType, titulo, html, kind }
+*/
+async function guardarDocGenerado(opts) {
+  if (!sb || !sesion || !miEmpresa) throw new Error('Inicia sesión.');
+  if (!opts.empId) throw new Error('Falta el trabajador.');
+  const kind = opts.kind || 'generado';
+  const nombreArchivo = `${sanitizaNombreArchivo(opts.titulo || 'documento')}.html`;
+  const path = `${miEmpresa}/${opts.empId}/${Date.now()}-${nombreArchivo}`;
+  // Documento auto-contenido e imprimible.
+  const docHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">` +
+    `<title>${escapaHtml(opts.titulo || 'Documento')}</title>` +
+    `<style>@page{size:Letter;margin:2.2cm 2cm;}body{font-family:'Times New Roman',Georgia,serif;font-size:11.5pt;line-height:1.5;color:#111;max-width:720px;margin:24px auto;padding:0 16px;text-align:justify;}h1{font-size:14pt;text-align:center;}h2{font-size:12pt;text-align:center;letter-spacing:2px;}</style>` +
+    `</head><body>${opts.html || ''}</body></html>`;
+  const hash = await sha256Hex(docHtml);
+  const blob = new Blob([docHtml], { type: 'text/html' });
+  const up = await sb.storage.from('documentos').upload(path, blob, { upsert: false, contentType: 'text/html' });
+  if (up.error) throw up.error;
+  const ins = await sb.from('documents').insert([{
+    company_id: miEmpresa, employee_id: opts.empId,
+    doc_type: opts.docType || 'Documento', file_path: path,
+    file_name: nombreArchivo, kind, hash,
+  }]);
+  if (ins.error) throw ins.error;
+  // Si el expediente de ese trabajador está abierto, refrescar la lista.
+  if (empActual === opts.empId) {
+    const r = await sb.from('documents').select('*').eq('employee_id', opts.empId)
+      .order('created_at', { ascending: false });
+    const cont = document.getElementById('ec-doc-list');
+    if (cont) cont.innerHTML = renderDocs(r.data || []);
+  }
+  return { hash, path };
 }
 
 async function verDocumento(path) {

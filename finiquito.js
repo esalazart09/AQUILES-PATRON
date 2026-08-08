@@ -383,6 +383,27 @@ async function guardarFiniquito() {
       total: resultado.total,
     }]);
     if (error) throw error;
+    // También guardarlo como documento imprimible (con hash) en la lista.
+    try {
+      const emp = _fqEmps.find(e => e.id === empId) || {};
+      const esLiq = resultado.esDespidoInjustificado;
+      const filas = resultado.conceptos.map(c =>
+        `<tr><td>${_fqEsc(c.nombre)}<br><small style="color:#666">${_fqEsc(c.formula)}</small></td><td style="text-align:right">${_fqMoney(c.monto)}</td></tr>`).join('');
+      const body = `<h1>Cálculo de ${esLiq ? 'Liquidación' : 'Finiquito'}</h1>
+        <p><b>Trabajador:</b> ${_fqEsc(emp.full_name || '')}<br>
+        <b>Antigüedad:</b> ${resultado.anios} años (${resultado.diasTrabajados} días)<br>
+        <b>Periodo:</b> ${_fqEsc(datos.ingreso)} a ${_fqEsc(datos.baja)}</p>
+        <table style="width:100%;border-collapse:collapse;">${filas}
+        <tr><td style="border-top:2px solid #111;font-weight:bold;">TOTAL A PAGAR</td><td style="border-top:2px solid #111;font-weight:bold;text-align:right;">${_fqMoney(resultado.total)}</td></tr></table>
+        <p style="font-size:11px;color:#666;">Cálculo de apoyo con fórmulas de la LFT. No incluye retenciones de ISR.</p>`;
+      if (typeof guardarDocGenerado === 'function') {
+        await guardarDocGenerado({
+          empId, docType: esLiq ? 'Liquidación' : 'Finiquito',
+          titulo: `${esLiq ? 'Liquidación' : 'Finiquito'} — ${emp.full_name || ''}`,
+          html: body, kind: 'generado',
+        });
+      }
+    } catch (e2) { console.warn('El finiquito se guardó como datos, pero no como documento.', e2); }
     if (m) { m.textContent = '✓ Guardado en el expediente del trabajador.'; m.style.color = '#1b8a5a'; }
   } catch (e) {
     console.warn('No se pudo guardar el finiquito.', e);
