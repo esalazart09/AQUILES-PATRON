@@ -327,8 +327,25 @@ async function generarContratoDoc() {
   _ultContrato = { empId, titulo: `Contrato — ${emp.full_name}`, html };
   if (msg) {
     msg.innerHTML = '✓ Contrato generado en una pestaña nueva. ' +
-      '<button class="gen-btn" style="margin-top:10px;" onclick="enviarContratoAFirmar()">✍️ Enviar a firmar</button>';
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' +
+      '<button class="gen-btn" onclick="guardarContratoExpediente()">💾 Guardar en expediente</button>' +
+      '<button class="gen-btn" onclick="enviarContratoAFirmar()">✍️ Enviar a firmar</button></div>';
     msg.style.color = '#1b8a5a';
+  }
+}
+
+async function guardarContratoExpediente() {
+  if (!_ultContrato) return;
+  const msg = document.getElementById('ct-msg');
+  try {
+    if (msg) { msg.textContent = 'Guardando en el expediente…'; msg.style.color = 'rgba(10,14,26,0.6)'; }
+    await guardarDocGenerado({
+      empId: _ultContrato.empId, docType: 'Contrato',
+      titulo: _ultContrato.titulo, html: _ultContrato.html, kind: 'generado',
+    });
+    if (msg) { msg.textContent = '✓ Contrato guardado en el expediente del trabajador.'; msg.style.color = '#1b8a5a'; }
+  } catch (e) {
+    if (msg) { msg.textContent = 'No se pudo guardar: ' + (e.message || ''); msg.style.color = '#c0392b'; }
   }
 }
 
